@@ -1,0 +1,54 @@
+Demande à Régis : 
+
+Pour l’instant, le graph actuel permet de comprendre les liens entre les témoins et leurs « témoignés »
+
+Une fleche A->B = A est témoin de B
+si bleue : témoin lors de l'ouverture
+si noire : lors des enchères
+si rouge : lors des trois derniers trucs (prise, instrument, cancellation). 
+
+Ce tableau s’arrête à l’année 1426.
+
+ Il faudrait prendre en compte les années suivantes, jusqu’en 1436. Je t’envoie aussi la nouvelle table des nœuds, et les codes de professions et titres. 
+
+
+Il faudrait trois autres tableaux représentant : 
+
+
+
+-les relations entre enchérisseurs (E) et ouvreurs (O) (qu’on appellerait  « tableau 2 ») : entre E 1 et O, E2 et O, En et O. 
+-les relations entre preneurs  et ouvreurs : P1 et O, P2 et O. 
+-entre enchérisseurs n et enchérisseurs n-1. (qu’on appellerait « tableau 3 »)
+-entre témoins. Ainsi entre les différents numéros de T1.  Car  j’ai l’impression que certains groupes reviennent souvent, comme 17, 47, et qui appartiennent aux mêmes groupes sociaux (on l’appellerait « tableau 4 »). 
+Cela ferait 3 tableaux en plus du tableau que tu m’as envoyé sur les témoins (« tableau 1)
+
+
+Chaque tableau pourrait être décomposé en trois selon que l’on veut faire apparaître, par code de couleurs,
+ -les métiers
+-les offices : qui peut être nul. 
+-les grades et titres divers. 
+
+
+Enfin, 
+-comment trouver un numéro dans le graph ? 
+-comment sortir du graph un sous graph centré sur un numéro qui me permet de voir tous les liens d’un numéro. 
+
+
+Salut mec, 
+
+je ne sais pas où tu en es des graph. Mais je te propose de commencer peut-être par le plus simple : faire trois graphs qui prennent respectivement en considération 
+
+-les métiers
+-les offices
+-les grades et titres divers. 
+
+J'aimerais avoir la preuve que cette ville est tenue par une oligarchie de bouchers et de notaires qui s'engraissent sur le pauvre peuple. Une ville où l'aristocratie est presque absente, les intellectuels rarissimes. Une ville de gros beaufs, une France moisie de petits blancs matérialistes et nauséabonds. 
+
+Dans le ficher codes des professions, je donne quelques idées pour ces différents codages et je donne ces codes. 
+
+Dans le ficher "table des noeuds", tu trouveras tous les numéros accompagnés de leurs codes de métiers, offices, grades. Pb : j'ai seulement distingué les "métiers" (où j'ai rangé les métiers et les offices) et les "titres et grades". 
+
+Je te renvoie une base de donnée où j'ai ajouté deux années de plus./ 
+
+Bises. 
+
