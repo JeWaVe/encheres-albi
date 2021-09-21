@@ -108,6 +108,70 @@ namespace xavier
 
             FullGraph(sales);
             OverBidGraph(sales);
+            WinnerGraph(sales);
+            WitnessGraph(sales);
+        }
+        private static void WitnessGraph(Sale[] sales)
+        {
+            var graph = new Graph();
+            var nodes = new HashSet<int>();
+            var links = new List<Link>();
+            foreach (var sale in sales)
+            {
+            }
+        }
+
+        private static void WinnerGraph(Sale[] sales)
+        {
+            var graph = new Graph();
+            var nodes = new HashSet<int>();
+            var links = new List<Link>();
+            foreach (var sale in sales)
+            {
+                var openers = sale.Bids[0].Bidders;
+                var winner1 = sale.Bids[sale.Bids.Count - 6].Bidders;
+                var winner2 = sale.Bids[sale.Bids.Count - 4].Bidders;
+                foreach (var w1 in winner1)
+                {
+                    foreach (var o1 in openers)
+                    {
+                        if (o1 != w1)
+                        {
+                            nodes.Add(o1);
+                            nodes.Add(w1);
+                            links.Add(new Link
+                            {
+                                label = Link.LINK_OVERBID,
+                                source = w1,
+                                target = o1,
+                                weight = 1
+                            });
+                        }
+                    }
+                }
+                foreach (var w2 in winner2)
+                {
+                    foreach (var o1 in openers)
+                    {
+                        if (w2 != o1)
+                        {
+                            nodes.Add(o1);
+                            nodes.Add(w2);
+                            links.Add(new Link
+                            {
+                                label = Link.LINK_OVERBID,
+                                source = w2,
+                                target = o1,
+                                weight = 1
+                            });
+                        }
+                    }
+                }
+            }
+
+            graph.nodes = nodes.Select(n => new Node { id = n, name = n.ToString() }).ToArray();
+            graph.links = links.ToArray();
+            File.WriteAllText("html/winners.json", JsonConvert.SerializeObject(graph));
         }
 
         private static void OverBidGraph(Sale[] sales)
@@ -146,7 +210,7 @@ namespace xavier
 
             graph.nodes = nodes.Select(n => new Node { id = n, name = n.ToString() }).ToArray();
             graph.links = links.ToArray();
-            File.WriteAllText("overbid_graph.json", JsonConvert.SerializeObject(graph));
+            File.WriteAllText("html/overbid_graph.json", JsonConvert.SerializeObject(graph));
         }
 
         private static void FullGraph(Sale[] sales)
@@ -245,7 +309,7 @@ namespace xavier
             graph.nodes = nodes.Select(n => new Node { id = n, name = n.ToString() }).ToArray();
             graph.links = links.ToArray();
 
-            File.WriteAllText("full_graph.json", JsonConvert.SerializeObject(graph));
+            File.WriteAllText("html/full_graph.json", JsonConvert.SerializeObject(graph));
         }
     }
 }
