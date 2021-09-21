@@ -118,7 +118,33 @@ namespace xavier
             var links = new List<Link>();
             foreach (var sale in sales)
             {
+                for (int bid_index = 1; bid_index < sale.Bids.Count - 1; bid_index += 2)
+                {
+                    var witnesses = sale.Bids[bid_index].Bidders;
+
+                    foreach (var w in witnesses)
+                    {
+                        foreach (var ww in witnesses)
+                        {
+                            if (ww != w)
+                            {
+                                nodes.Add(w);
+                                links.Add(new Link
+                                {
+                                    label = Link.LINK_WITNESS_TOGETHER,
+                                    source = w,
+                                    target = ww,
+                                    weight = 1
+                                });
+                            }
+                        }
+                    }
+                }
             }
+
+            graph.nodes = nodes.Select(n => new Node { id = n, name = n.ToString() }).ToArray();
+            graph.links = links.ToArray();
+            File.WriteAllText("html/witnesses.json", JsonConvert.SerializeObject(graph));
         }
 
         private static void WinnerGraph(Sale[] sales)
