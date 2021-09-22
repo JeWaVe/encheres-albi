@@ -39,10 +39,10 @@ namespace xavier
         public const int LINK_WITNESS_TOGETHER = 1;
         public const int LINK_BID_TOGETHER = 2;
         public const int LINK_OVERBID = 3;
+        public const int LINK_WON_BID = 4;
         public int source { get; set; }
         public int target { get; set; }
         public int label { get; set; }
-        public int weight { get; set; }
     }
 
 
@@ -186,8 +186,7 @@ namespace xavier
                                 {
                                     label = Link.LINK_WITNESS_TOGETHER,
                                     source = w,
-                                    target = ww,
-                                    weight = 1
+                                    target = ww
                                 });
                             }
                         }
@@ -222,8 +221,7 @@ namespace xavier
                             {
                                 label = Link.LINK_OVERBID,
                                 source = w1,
-                                target = o1,
-                                weight = 1
+                                target = o1
                             });
                         }
                     }
@@ -240,8 +238,7 @@ namespace xavier
                             {
                                 label = Link.LINK_OVERBID,
                                 source = w2,
-                                target = o1,
-                                weight = 1
+                                target = o1
                             });
                         }
                     }
@@ -276,8 +273,7 @@ namespace xavier
                                 {
                                     source = b,
                                     target = o,
-                                    label = Link.LINK_OVERBID,
-                                    weight = 1
+                                    label = Link.LINK_OVERBID
                                 });
                             }
                         }
@@ -302,7 +298,9 @@ namespace xavier
             {
                 int bidIndex = 0;
                 var lastBidders = new int[0];
-                while (bidIndex < sale.Bids.Count)
+                var openers = sale.Bids[0].Bidders;
+
+                while (bidIndex < sale.Bids.Count - 6)
                 {
                     var bidders = sale.Bids[bidIndex].Bidders;
                     var witnesses = sale.Bids[bidIndex + 1].Bidders;
@@ -319,8 +317,7 @@ namespace xavier
                                 {
                                     label = Link.LINK_WITNESS_TOGETHER,
                                     source = w2,
-                                    target = w1,
-                                    weight = 1,
+                                    target = w1
                                 });
                             }
                         }
@@ -344,8 +341,7 @@ namespace xavier
                                 {
                                     source = b1,
                                     target = b2,
-                                    label = Link.LINK_BID_TOGETHER,
-                                    weight = 2,
+                                    label = Link.LINK_BID_TOGETHER
                                 });
                             }
                         }
@@ -358,8 +354,7 @@ namespace xavier
                                 {
                                     source = b1,
                                     target = b3,
-                                    label = Link.LINK_OVERBID,
-                                    weight = 0,
+                                    label = Link.LINK_OVERBID
                                 });
                             }
                         }
@@ -373,8 +368,7 @@ namespace xavier
                             {
                                 source = w1,
                                 target = b1,
-                                label = Link.LINK_WITNESS,
-                                weight = 1,
+                                label = Link.LINK_WITNESS
                             });
                         }
                     }
@@ -382,6 +376,93 @@ namespace xavier
                     lastBidders = bidders.ToArray();
 
                     bidIndex += 2;
+                }
+
+                var winners1 = sale.Bids[sale.Bids.Count - 6].Bidders;
+                var witness1 = sale.Bids[sale.Bids.Count - 5].Bidders;
+                var winners2 = sale.Bids[sale.Bids.Count - 4].Bidders;
+                var witness2 = sale.Bids[sale.Bids.Count - 3].Bidders;
+
+                foreach (var winner in winners1)
+                {
+                    foreach (var opener in openers)
+                    {
+                        nodes.Add(opener);
+                        nodes.Add(winner);
+                        links.Add(new Link
+                        {
+                            source = winner,
+                            target = opener,
+                            label = Link.LINK_WON_BID
+                        });
+                    }
+
+                    foreach (var w in witness1)
+                    {
+                        nodes.Add(winner);
+                        nodes.Add(w);
+                        links.Add(new Link
+                        {
+                            source = w,
+                            label = Link.LINK_WITNESS,
+                            target = winner
+                        });
+
+
+                        foreach (var w2 in witness1)
+                        {
+                            if (w != w2)
+                            {
+                                links.Add(new Link
+                                {
+                                    label = Link.LINK_WITNESS_TOGETHER,
+                                    source = w,
+                                    target = w2
+                                });
+                            }
+                        }
+                    }
+                }
+
+                foreach (var winner in winners2)
+                {
+                    foreach (var opener in openers)
+                    {
+                        nodes.Add(opener);
+                        nodes.Add(winner);
+                        links.Add(new Link
+                        {
+                            source = winner,
+                            target = opener,
+                            label = Link.LINK_WON_BID
+                        });
+                    }
+
+                    foreach (var w in witness2)
+                    {
+                        nodes.Add(winner);
+                        nodes.Add(w);
+                        links.Add(new Link
+                        {
+                            source = w,
+                            label = Link.LINK_WITNESS,
+                            target = winner
+                        });
+
+
+                        foreach (var w2 in witness2)
+                        {
+                            if (w != w2)
+                            {
+                                links.Add(new Link
+                                {
+                                    label = Link.LINK_WITNESS_TOGETHER,
+                                    source = w,
+                                    target = w2
+                                });
+                            }
+                        }
+                    }
                 }
             }
 
