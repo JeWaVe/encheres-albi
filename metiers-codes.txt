@@ -1,0 +1,74 @@
+Codes des professions et titres  pour le BB 19
+
+Voir le glossaire de Wolff (p. 673-675),  l’histoire d’Albi de Biget et Dega (Jean)-Louis), « L’utilisation d’un élément professionnel pour l’identification dans les sources fiscales du XIVe au XVIIe siècle en Rouergue et en Albigeois », dans Noms de métiers et catégories professionnelles : acteurs, pratiques, discours (XVe siècle à nos jours), dir Georges Hanne et Claire Judde de Larivière, Toulouse, Presses universitaires du Midi, 2010. Il insère en particulier un tableau des professions d’après le rôle de la taille de la cité de  Rodez de 1351, le rôle de la « quista » de Saint-Antonin, 1358-1359, le rôle du commun de paix du bailliage de Najac, 1488. 
+
+
+
+métiers : 
+
+notaire : NOT
+clerc : CLE
+marchand : MAR
+coutelier : COT
+affanayre (travailleur d’après Dega) : AF
+Sutor ou Savetier (pour l’année 1420-1421, ce sont les mêmes personnes qui sont nommées sutores et sabatiers. Idem en 1424-1425) (« cordonnier » d’après Dega, rôle de la cité de Rodez ) : SAV
+Recteur (curé) : REC
+Sarralhier (serrurier) : SAR
+maselier macellarius (boucher) : MAS 
+sartre : SRT Des tailleurs pour J. L. Biget (Histoire d’Albi, p. 67) et pour Wolff. 
+Bayssayre  bacxatori pannorum  : BAS. Des retondeurs, ibid., p. 67. Des tondeurs de drap d’après Dega, rôle de la cité de Rodez. 
+Apothicaire : AP 
+couturier, cauturier : CTR
+teinturier : TT
+ parayre  ou parator pannorum : PAR (Peyre Palet est nommé tenturier et parayre, en 1421-1422). Mais d’après J L Biget, les paraires sont des foulons. On peut cependant imaginer que l’on peut être les deux métiers : foulons et teinturiers, qui vont d’ailleurs assez ensemble (Histoire d’Albi, p. 67). Dega, d’après le rôle de la quiste de Saint-Antonin, traduit par pareur de draps, mais par foulonnier dans le rôle de Najac, 1488. Wolff les traduit par des « foulons ». 
+
+hospitalier  ou hostalier : HOS. Ce doit être des hôteliers, et non des hospitaliers de Jérusalem ! Mais j’ai un hostelier de Saint Jacques d’Albi habitant de Borie (Lavaur je crois) (habitatori Borie hospitalis Beati Jacobi Albie, juridictionis Albie), 1428-1429, herbas dels pratz. Une ospitaleria de Saint-Antonin est bien traduite par hôtellière par Dega. 
+mager de drap ? : MAG
+Scribe : SCR (le mot n’est pas employé, mais certains parlent d’eux à la première personne dans le registre : Ego). 
+Bastier (bourrelier, d’après Dega, cité de Rodez et d’après Wolff qui ajoute « fabricant de bâts ») : BAST
+Maçon (massonerius ?) : MAC
+penthenerius ou ponthenerius (pontonier ?) : PENT
+Tonsor pannorum (tondeur de drap) : TON. Dans ce cas, il faudrait les rapprocher des bayssayre. 
+
+
+
+
+
+Offices 
+
+consuls : COS
+conseiller aux délibérations : CS
+crieur public : CRI
+Trésorier : TRES
+Sergent : SERV
+Receveur : RECV
+Lieutenant du viguier d’Albi : LTV
+Lieutenant du juge d’Albi : LTJ
+
+En fait, les crieurs et les sergents ne sont jamais consuls. Mais les trésoriers et les receveurs accèdent au consulat. Il faudrait donc trois codes de couleurs : 
+-une couleur pour ceux qui accèdent au consulat (et par ailleurs exercent des offices majeurs au sein de la ville)
+-une couleur pour les crieurs
+-une couleur pour les sergents. 
+
+Pour les conseillers des délibérations, je m’appuie sur le reg de délibération BB 19. Quand j’écris CS 1418-1419-1, cela signifie que le conseiller n’apparaît qu’une seule fois. Attention, il peut arriver que les noms des conseillers ne soient pas tous notés. Ainsi le 11 mai 1421, image 25, fol. 20v. Mais ce n’est pas grave, l’essentiel est qu’un nom soit  inscrit dans le registre, ce qui est signe de notabilité. 
+
+Il y a des pbs d’homonymes. Il faudrait après le dépouillement du registre de délibérations reprendre les noms des individus enregistrés dans les fermes dans les années 1420, et essayer de les retrouver dans le reg de délibérations. On pourrait notamment regarder la liste des conseillers, très longue, de la délibération du 25 mai 1421, fol. 21-22 (image 25)
+
+Il serait intéressant de faire une seconde liste de conseillers influents, qui prennent la parole en premier et inspirent des décisions. 
+
+
+
+Titres et grades 
+
+maître (titre) : M
+noble : NOB
+bachelier en lois : BCL 
+ licencié en lois : LCL 
+Bourgeois : BG
+Monseigneur : Mgr
+
+le BCL est aussi maître. Donc il faut quatre codes de couleurs : 
+-une couleur pour les BCL M
+-une couleur pour les M qui ne sont pas BCL
+-une couleur pour le LCL
+-une oculeur pour les nobles. 

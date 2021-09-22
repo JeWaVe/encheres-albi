@@ -108,6 +108,9 @@
                     }
                 });
 
+                function get_job(node) {
+                    return node.job.concat(node.rank).join(',');
+                }
 
                 // preprocess
                 let node_indices = {};
@@ -171,7 +174,76 @@
                     .attr('width', width)
                     .call(d3.zoom().on("zoom", function () {
                         svg.attr("transform", d3.event.transform);
-                    }))
+                    }));
+
+                let jobs = {};
+                nodes.forEach((n, index) => {
+                    const job = n.job;
+                    const rank = n.rank;
+                    const label = get_job(n);
+                    if (!jobs.hasOwnProperty(label)) {
+                        jobs[label] = true;
+                    }
+                });
+
+                jobs = Object.keys(jobs);
+
+                // Add one dot in the legend for each name.
+                var legend = svg.selectAll("mydots")
+                    .data(jobs)
+                    .enter()
+                    .append('g');
+                var focus_job = false;
+                legend.on('click', d => {
+                    if (focus_job) {
+                        focus_job = false;
+                        d3.selectAll("g.node").attr("class", "node opaque");
+                        d3.selectAll("line").attr("class", "opaque");
+                    } else {
+                        // reset
+                        focusNode = false;
+                        focus_job = true;
+                        focusLinks = [];
+                        d3.selectAll("g.node").attr("class", "node transparent");
+                        d3.selectAll("line").attr("class", "transparent");
+                        d3.selectAll("line").select(function (l) {
+                            const source = nodes[node_indices[l.source.id]];
+                            const target = nodes[node_indices[l.target.id]];
+                            const source_job = get_job(source);
+                            const target_job = get_job(target);
+
+                            if (source_job == d || target_job == display) {
+                                focusLinks.push(l);
+                                d3.select(this).attr("class", "opaque");
+                            }
+                        });
+                        d3.selectAll("g.node").select(function (c) {
+                            var self = this;
+                            focusLinks.forEach(function (n) {
+                                if (n.source.id == c.id || n.target.id == c.id) {
+                                    d3.select(self).attr("class", "node opaque");
+                                }
+                            });
+                        });
+                    }
+                });
+
+                legend
+                    .append("circle")
+                    .attr("cx", 100)
+                    .attr("cy", function (d, i) { return 100 + i * 25 }) // 100 is where the first dot appears. 25 is the distance between dots
+                    .attr("r", 7)
+                    .style("fill", function (d) { return z(d) })
+
+                // Add one dot in the legend for each name.
+                legend
+                    .append("text")
+                    .attr("x", 120)
+                    .attr("y", function (d, i) { return 100 + i * 25 }) // 100 is where the first dot appears. 25 is the distance between dots
+                    .style("fill", function (d) { return z(d) })
+                    .text(function (d) { return d })
+                    .attr("text-anchor", "left")
+                    .style("alignment-baseline", "bottom");
 
                 svg
                     .append('defs')
@@ -213,7 +285,6 @@
                 group.on("click", function (d) {
                     focusLinks = [];
                     var current = this;
-                    console.log(current);
                     if (focusNode) {
                         focusNode = false;
                         d3.selectAll("g.node").attr("class", "node opaque");
@@ -227,7 +298,7 @@
                         d3.selectAll("line").select(function (l) {
                             if (l.source.id == d.id || l.target.id == d.id) {
                                 focusLinks.push(l);
-                                d3.select(this).attr("class", "node opaque");
+                                d3.select(this).attr("class", "opaque");
                             }
                         });
                         d3.selectAll("g.node").select(function (c) {
@@ -244,7 +315,7 @@
                 const circles = group
                     .append('circle')
                     .attr('r', d => d.r)
-                    .attr('fill', d => z(d.cluster))
+                    .attr('fill', d => z(get_job(d)))
                     .attr('stroke', 'black')
                     .attr('stroke-width', 1);
 
@@ -255,7 +326,7 @@
 
 
                 group.append("title")
-                    .text(function (d) { return d.id; });
+                    .text(function (d) { return d.name + "(" + d.job.join(",") + " -- " + d.rank.join(',') + ")"; });
 
                 circles
                     .call(d3.drag()

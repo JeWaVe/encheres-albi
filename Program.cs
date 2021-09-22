@@ -10,6 +10,26 @@ namespace xavier
     {
         public int id { get; set; }
         public string name { get; set; }
+
+        public List<String> job { get; set; }
+
+        public List<String> rank { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            Node o = obj as Node;
+            return o != null && o.id == this.id;
+        }
+
+        public override int GetHashCode()
+        {
+            return this.id;
+        }
+
+        public override string ToString()
+        {
+            return this.name;
+        }
     }
 
     class Link
@@ -54,8 +74,41 @@ namespace xavier
 
     class Program
     {
+
+        static IEnumerable<Node> ReadNodes()
+        {
+            List<Node> result = new List<Node>();
+            foreach (var line in File.ReadAllLines("./metiers.csv").Skip(1))
+            {
+                var splitted = line.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                List<String> rank = new List<string>();
+                List<String> job = new List<string>();
+                if (splitted.Length > 3)
+                {
+                    rank = splitted[3].Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+                }
+                if (splitted.Length > 2)
+                {
+                    job = splitted[2].Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+                }
+                result.Add(new Node
+                {
+                    id = int.Parse(splitted[0]),
+                    name = splitted[1],
+                    job = job,
+                    rank = rank,
+                });
+            }
+
+            return result;
+        }
+
+        static Dictionary<int, Node> Nodes;
+
         static void Main(string[] args)
         {
+            Nodes = ReadNodes().ToDictionary((n) => n.id);
+
             string[] lines = File.ReadAllLines("raw_data.csv");
 
             var years = lines[0].Split(",").Skip(1).Select(s => int.Parse(s.Trim())).ToArray();
@@ -142,7 +195,7 @@ namespace xavier
                 }
             }
 
-            graph.nodes = nodes.Select(n => new Node { id = n, name = n.ToString() }).ToArray();
+            graph.nodes = nodes.Select(n => Nodes[n]).ToArray();
             graph.links = links.ToArray();
             File.WriteAllText("html/witnesses.json", JsonConvert.SerializeObject(graph));
         }
@@ -195,7 +248,7 @@ namespace xavier
                 }
             }
 
-            graph.nodes = nodes.Select(n => new Node { id = n, name = n.ToString() }).ToArray();
+            graph.nodes = nodes.Select(n => Nodes[n]).ToArray();
             graph.links = links.ToArray();
             File.WriteAllText("html/winners.json", JsonConvert.SerializeObject(graph));
         }
@@ -234,7 +287,7 @@ namespace xavier
                 }
             }
 
-            graph.nodes = nodes.Select(n => new Node { id = n, name = n.ToString() }).ToArray();
+            graph.nodes = nodes.Select(n => Nodes[n]).ToArray();
             graph.links = links.ToArray();
             File.WriteAllText("html/overbid_graph.json", JsonConvert.SerializeObject(graph));
         }
@@ -332,7 +385,7 @@ namespace xavier
                 }
             }
 
-            graph.nodes = nodes.Select(n => new Node { id = n, name = n.ToString() }).ToArray();
+            graph.nodes = nodes.Select(n => Nodes[n]).ToArray();
             graph.links = links.ToArray();
 
             File.WriteAllText("html/full_graph.json", JsonConvert.SerializeObject(graph));
