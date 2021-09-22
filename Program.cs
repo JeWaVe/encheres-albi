@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 
 namespace xavier
@@ -12,6 +13,7 @@ namespace xavier
         public string name { get; set; }
 
         public List<String> job { get; set; }
+        public List<String> offices { get; set; }
 
         public List<String> rank { get; set; }
 
@@ -75,27 +77,32 @@ namespace xavier
     class Program
     {
 
+        static string[] OFFICES = new string[8] { "COS", "CS", "CRI", "TRES", "SERV", "RECV", "LTV", "LTJ" };
+        static string[] RANKS = new string[] { "M", "BCL", "LCL", "NOB", "BG", "MGR" };
+
         static IEnumerable<Node> ReadNodes()
         {
+
             List<Node> result = new List<Node>();
             foreach (var line in File.ReadAllLines("./metiers.csv").Skip(1))
             {
                 var splitted = line.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                 List<String> rank = new List<string>();
                 List<String> job = new List<string>();
-                if (splitted.Length > 3)
-                {
-                    rank = splitted[3].Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
-                }
+                List<String> offices = new List<string>();
                 if (splitted.Length > 2)
                 {
-                    job = splitted[2].Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+                    var tmp = splitted[2].Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+                    job = tmp.Where(s => !OFFICES.Contains(s) && !RANKS.Contains(s)).ToList();
+                    offices = tmp.Where(s => OFFICES.Contains(s)).ToList();
+                    rank = tmp.Where(s => RANKS.Contains(s)).ToList();
                 }
                 result.Add(new Node
                 {
                     id = int.Parse(splitted[0]),
-                    name = splitted[1],
+                    name = Regex.Replace(splitted[1], @"\s+", " "),
                     job = job,
+                    offices = offices,
                     rank = rank,
                 });
             }

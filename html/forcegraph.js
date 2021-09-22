@@ -29,11 +29,7 @@ function display(input) {
         nodes.forEach((node, index) => {
             node.r = 5 * Math.log(node.outlinks + 2);
             maxRadius = Math.max(maxRadius, node.r);
-        })
-
-
-        const width = window.innerWidth;
-        const height = window.innerHeight;
+        });
 
         // separation between same-color circles
         const padding = 9; // 1.5

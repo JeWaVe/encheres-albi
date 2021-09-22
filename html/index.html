@@ -120,7 +120,7 @@
         const width = window.innerWidth;
         const height = window.innerHeight;
         function get_job(node) {
-            return node.job.concat(node.rank).join(',') || "inconnu";
+            return node.job.concat(node.offices).concat(node.rank).join(',') || "inconnu";
         }
 
         function sanitize(graph) {

@@ -96,21 +96,50 @@ function display_full() {
 
     function hierarchy(g) {
         var map = { "root": { name: "root", children: [] } };
-        var jobs = new Set();
-        g.nodes.forEach((n, index) => {
-            jobs.add(get_job(n));
-        });
+        function contains(children, node) {
+            for (let i = 0; i < children.length; ++i) {
+                if (children[i].name == node.name) {
+                    return true;
+                }
+            }
 
-        jobs.forEach(j => {
-            map[j] = { name: j, children: [], parent: map["root"] };
-            map["root"].children.push(map[j]);
-        });
+            return false;
+        }
 
         g.nodes.forEach((n, index) => {
-            const job_name = get_job(n);
-            map[n.name] = { name: n.name, id: n.id, children: [], parent: map[job_name] };
-            map[job_name].children.push(map[n.name]);
+            const rank = n.rank.join(',') || "no rank";
+            const office = rank + " " + n.offices.join(',') || "no office";
+            const job = office + " " + n.job.join(',') || "no job";
+            const name = n.id + " : " + n.name;
+            if (!map.hasOwnProperty(rank)) {
+                map[rank] = { name: rank, children: [], parent: map["root"] };
+            }
+            if (!map.hasOwnProperty(office)) {
+                map[office] = { name: office, children: [], parent: map[rank] };
+            }
+            if (!map.hasOwnProperty(job)) {
+                map[job] = { name: job, children: [], parent: map[office] };
+            }
+            if (!map.hasOwnProperty(name)) {
+                map[name] = { name: name, id: n.id, children: [], parent: map[job] };
+            }
+
+            if (!contains(map["root"].children, map[rank])) {
+                map["root"].children.push(map[rank]);
+            }
+            if (!contains(map[rank].children, map[office])) {
+                map[rank].children.push(map[office]);
+            }
+
+            if (!contains(map[office].children, map[job])) {
+                map[office].children.push(map[job]);
+            }
+
+            if (!contains(map[job].children, map[name])) {
+                map[job].children.push(map[name]);
+            }
         });
+        window.mymap = map;
 
         return d3.hierarchy(map["root"]);
     }
