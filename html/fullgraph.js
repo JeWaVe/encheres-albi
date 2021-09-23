@@ -16,8 +16,8 @@ function display_full() {
 
 
     var svg = d3.select("#content").append("svg")
-        .attr("width", diameter + 200)
-        .attr("height", diameter + 200);
+        .attr("width", diameter + 300)
+        .attr("height", diameter + 300);
 
     var diagram = svg
         .append("g")
@@ -42,15 +42,6 @@ function display_full() {
     var winner = svg.append("g").attr("class", "legend").attr("data-legend", "won");
     winner.append("circle").attr("cx", 10).attr("cy", 110).attr("r", 6).style("fill", "green");
     winner.append("text").attr("x", 30).attr("y", 115).text("Vainqueur sur").style("font-size", "15px").attr("alignment-baseline", "middle");
-
-    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-        var angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
-
-        return {
-            x: centerX + (radius * Math.cos(angleInRadians)),
-            y: centerY + (radius * Math.sin(angleInRadians))
-        };
-    }
 
     function degToRad(d) {
         return d / 180 * Math.PI;
