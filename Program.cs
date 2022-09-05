@@ -8,13 +8,44 @@ using ExcelDataReader;
 
 namespace albi
 {
+    class Office: IComparable<Office> {
+        public ushort Rank {get; set;}
+        public String Category { get; set;} 
+        public String Code  { get; set;} 
+        public String Name  { get; set;} 
+        public String Color  { get; set;} 
+
+        public override String ToString() {
+            return Name;
+        }
+
+        public int CompareTo(Office o) {
+            return Rank.CompareTo(o.Rank);
+        }
+
+        public override bool Equals(object obj)
+        {
+            var o = obj as Office;
+            if (o == null) {
+                return false;
+            }
+
+            return o == this || o.Code == this.Code;
+        }
+        
+        public override int GetHashCode()
+        {
+            return Code.GetHashCode();
+        }
+    };
+
     class Node
     {
         public int id { get; set; }
         public string name { get; set; }
 
         public List<String> job { get; set; }
-        public List<String> offices { get; set; }
+        public List<Office> offices { get; set; }
 
         public List<String> rank { get; set; }
 
@@ -75,15 +106,84 @@ namespace albi
         public List<int> Bidders { get; set; }
     }
 
+
+
     class Program
     {
 
-        static string[] OFFICES = new string[8] { "COS", "CS", "CRI", "TRES", "SERV", "RECV", "LTV", "LTJ" };
+        static HashSet<Office> OFFICES = new HashSet<Office> {
+            new Office {
+                Rank = 0,
+                Code = "LTV", 
+                Name = "Lieutenant du Viguier", 
+                Color = "#000cff",
+                Category = "Administration royale"
+            },
+            new Office {
+                Rank = 1, 
+                Code = "LTJ",
+                Name = "Lieutenant du juge", 
+                Color = "#00d8ff",
+                Category = "Administration royale"
+            },
+            new Office {
+                Rank = 2, 
+                Code = "COS",
+                Name = "Consul", 
+                Color = "#ff0c00",
+                Category = "Administration municipale"
+            },
+            new Office {
+                Rank = 3,
+                Code = "TRES",
+                Name = "Trésorier",
+                Color = "#ff9700",
+                Category = "Administration municipale"
+            },
+            new Office {
+                Rank = 4,
+                Code = "NOTC",
+                Name = "Notaire des consuls",
+                Color = "#ff008b",
+                Category = "Administration municipale"
+            },
+            new Office {
+                Rank = 5,
+                Code = "CS",
+                Name = "Conseiller",
+                Color = "",
+                Category = "Administration municipale"
+            },
+            new Office {
+                Rank = 6,
+                Code = "CRI",
+                Name = "Crieur public",
+                Color = "#fffb00",
+                Category = "Administration municipale"
+            },
+            new Office {
+                Rank = 7,
+                Code = "SERVD",
+                Name = "Serviteur",
+                Color = "#7f8c8d ",
+                Category = "Administration municipale"
+            },
+            new Office {
+                Rank = 8,
+                Code = "SERV",
+                Name = "",
+                Category = "Indéterminé",
+                Color = "#b900ff",
+            }
+        };
+
+
         static string[] RANKS = new string[] { "M", "BCL", "LCL", "NOB", "BG", "MGR" };
 
         static IEnumerable<Node> ReadNodes()
         {
             List<Node> result = new List<Node>();
+            var allOffices = OFFICES.ToDictionary(o => o.Code, o => o);
             foreach (var line in File.ReadAllLines("raw_data/nodes.csv").Skip(1))
             {
                 var splitted = line.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -92,21 +192,25 @@ namespace albi
                 }
                 List<String> rank = new List<string>();
                 List<String> job = new List<string>();
-                List<String> offices = new List<string>();
+                List<Office> offices = new List<Office>();
             
                 if (splitted.Length > 2)
                 {
                     var tmp = splitted[2].Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
-                    job = tmp.Where(s => !OFFICES.Contains(s) && !RANKS.Contains(s)).ToList();
-                    offices = tmp.Where(s => OFFICES.Contains(s)).ToList();
-                    rank = tmp.Where(s => RANKS.Contains(s)).ToList();
+                    
+                    foreach(var of in tmp) {
+                        if(allOffices.ContainsKey(of)) {
+                            offices.Add(allOffices[of]);
+                        }
+                    }
                 }
+
                 result.Add(new Node
                 {
                     id = int.Parse(splitted[0]),
                     name = Regex.Replace(splitted[1], @"\s+", " "),
                     job = job,
-                    offices = offices,
+                    offices = offices.OrderBy(o => o.Rank).ToList(),
                     rank = rank,
                 });
             }
