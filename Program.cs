@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using ExcelDataReader;
 
-namespace xavier
+namespace albi
 {
     class Node
     {
@@ -82,14 +83,17 @@ namespace xavier
 
         static IEnumerable<Node> ReadNodes()
         {
-
             List<Node> result = new List<Node>();
-            foreach (var line in File.ReadAllLines("./metiers.csv").Skip(1))
+            foreach (var line in File.ReadAllLines("raw_data/nodes.csv").Skip(1))
             {
                 var splitted = line.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                if(splitted.Length <= 1) {
+                    continue;
+                }
                 List<String> rank = new List<string>();
                 List<String> job = new List<string>();
                 List<String> offices = new List<string>();
+            
                 if (splitted.Length > 2)
                 {
                     var tmp = splitted[2].Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
@@ -116,7 +120,7 @@ namespace xavier
         {
             Nodes = ReadNodes().ToDictionary((n) => n.id);
 
-            string[] lines = File.ReadAllLines("raw_data.csv");
+            string[] lines = File.ReadAllLines("raw_data/base.csv");
 
             var years = lines[0].Split(",").Skip(1).Select(s => int.Parse(s.Trim())).ToArray();
             var names = lines[1].Split(",").Skip(1).Select(s => s.Trim()).ToArray();
@@ -139,8 +143,8 @@ namespace xavier
                 var cells = split
                     .Skip(1)
                     .Select(c => c.Trim()
-                            .Split('#', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-                            .Select(s => int.Parse(s))
+                            .Split(';', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                            .Select(s => int.Parse(s.Trim('\"')))
                             .ToArray())
                     .ToArray();
                 if (cells.Length != sales.Length)
