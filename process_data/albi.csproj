@@ -10,5 +10,4 @@
     <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
     <PackageReference Include="newtonsoft.json" Version="13.0.1" />
   </ItemGroup>
-
 </Project>
