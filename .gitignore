@@ -1,3 +1,20 @@
 **/*.dll
 bin/Debug
 obj
+
+
+# dependencies
+/webapp/node_modules
+webapp/.pnp
+webapp/.pnp.js
+
+# testing
+webapp/coverage
+
+# production
+webapp/build
+
+
+webapp/npm-debug.log*
+webapp/yarn-debug.log*
+webapp/yarn-error.log*

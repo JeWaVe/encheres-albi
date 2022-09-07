@@ -294,15 +294,11 @@ function display_full() {
         }
 
         g.nodes.forEach((n, index) => {
-            const rank = n.rank.join(',') || "no rank";
-            const office = rank + " " + (n.offices.join(',') || "no office");
+            const office = (n.office?.Name || "no office");
             const job = office + " " + (n.job.join(',') || "no job");
             const name = n.id + " : " + n.name;
-            if (!map.hasOwnProperty(rank)) {
-                map[rank] = { name: rank, children: [], parent: map["root"] };
-            }
             if (!map.hasOwnProperty(office)) {
-                map[office] = { name: office, children: [], parent: map[rank] };
+                map[office] = { name: office, children: [], parent: map["root"] };
             }
             if (!map.hasOwnProperty(job)) {
                 map[job] = { name: job, children: [], parent: map[office] };
@@ -311,11 +307,8 @@ function display_full() {
                 map[name] = { name: name, id: n.id, children: [], parent: map[job] };
             }
 
-            if (!contains(map["root"].children, map[rank])) {
-                map["root"].children.push(map[rank]);
-            }
-            if (!contains(map[rank].children, map[office])) {
-                map[rank].children.push(map[office]);
+            if (!contains(map["root"].children, map[office])) {
+                map["root"].children.push(map[office]);
             }
 
             if (!contains(map[office].children, map[job])) {

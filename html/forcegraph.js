@@ -74,7 +74,6 @@ function display(input) {
         let jobs = {};
         nodes.forEach((n, index) => {
             const job = n.job;
-            const rank = n.rank;
             const label = get_job(n);
             if (!jobs.hasOwnProperty(label)) {
                 jobs[label] = true;
@@ -221,7 +220,7 @@ function display(input) {
 
 
         group.append("title")
-            .text(function (d) { return d.name + "(" + d.job.join(",") + " -- " + d.rank.join(',') + ")"; });
+            .text(d => get_job(d));
 
         circles
             .call(d3.drag()

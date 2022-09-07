@@ -129,7 +129,18 @@
         const width = window.innerWidth;
         const height = window.innerHeight;
         function get_job(node) {
-            return node.job.concat(node.offices.concat(node.rank)).join(',') || "pas de rang";
+            if(node.id == 10) {
+                console.log("primeti");
+            }
+            let result = [];
+            if (node.office) {
+                result.push(node.office.Name);
+            } 
+            if(node.job.length) {
+                result = result.concat(node.job.map(s => s.Name));
+            }
+
+            return result.join(",") || "pas de données";
         }
 
         function sanitize(graph) {
@@ -152,10 +163,8 @@
                 let source = graph.nodes[node_indices[link.source]];
                 source.outlinks += 1;
             });
-            let maxRadius = 0;
             graph.nodes.forEach((node, index) => {
                 node.r = 5 * Math.log(node.outlinks + 2);
-                maxRadius = Math.max(maxRadius, node.r);
             });
         }
     </script>
@@ -179,10 +188,10 @@
             <input class="radio" type="radio" id="full" name="choices" value="full" checked />
             <label for="full">Graphe complet</label>
         </div>
-        <div>
+        <!-- <div>
             <input class="radio" type="radio" id="chords" name="choices" value="chords" />
             <label for="full">Flux d'intérations par catégories</label>
-        </div>
+        </div> -->
     </form>
     <div id="content" width="100%" height="100%">
 

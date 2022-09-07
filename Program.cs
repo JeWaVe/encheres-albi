@@ -8,24 +8,16 @@ using ExcelDataReader;
 
 namespace albi
 {
-    class Office: IComparable<Office> {
-        public ushort Rank {get; set;}
-        public String Category { get; set;} 
-        public String Code  { get; set;} 
-        public String Name  { get; set;} 
-        public String Color  { get; set;} 
-
-        public override String ToString() {
-            return Name;
-        }
-
-        public int CompareTo(Office o) {
-            return Rank.CompareTo(o.Rank);
-        }
+    class NodeAttribute {
+        
+        public String Code { get; set; }
+        public String Name { get; set; }
+        public String Color { get; set; }
+        public String Category { get; set; }
 
         public override bool Equals(object obj)
         {
-            var o = obj as Office;
+            var o = obj as NodeAttribute;
             if (o == null) {
                 return false;
             }
@@ -37,6 +29,21 @@ namespace albi
         {
             return Code.GetHashCode();
         }
+    }
+
+    class Job : NodeAttribute {
+    }
+
+    class Office: NodeAttribute, IComparable<Office> {
+        public ushort Rank {get; set; }
+
+        public override String ToString() {
+            return Name;
+        }
+
+        public int CompareTo(Office o) {
+            return Rank.CompareTo(o.Rank);
+        }
     };
 
     class Node
@@ -44,10 +51,9 @@ namespace albi
         public int id { get; set; }
         public string name { get; set; }
 
-        public List<String> job { get; set; }
-        public List<Office> offices { get; set; }
+        public List<Job> job { get; set; }
 
-        public List<String> rank { get; set; }
+        public Office office { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -68,7 +74,6 @@ namespace albi
 
     class Link
     {
-
         public const int LINK_WITNESS = 0;
         public const int LINK_WITNESS_TOGETHER = 1;
         public const int LINK_BID_TOGETHER = 2;
@@ -110,7 +115,6 @@ namespace albi
 
     class Program
     {
-
         static HashSet<Office> OFFICES = new HashSet<Office> {
             new Office {
                 Rank = 0,
@@ -177,21 +181,160 @@ namespace albi
             }
         };
 
-
-        static string[] RANKS = new string[] { "M", "BCL", "LCL", "NOB", "BG", "MGR" };
+        static HashSet<Job> JOBS = new HashSet<Job> {
+            new Job {
+                Code = "AF", 
+                Name = "Travailleur",
+                Category = "Ouvriers",
+                Color = "#ced0d0",
+            },
+            new Job {
+                Code = "BAS",
+                Name = "Tondeur de draps",
+                Category = "Métiers du textile et de l’habillement, petit équipement",
+                Color = "#585858"
+            },
+            new Job {
+                Code = "CTR", 
+                Name = "Couturier",
+                Category = "Métiers du textile et de l’habillement, petit équipement",
+                Color = "#585858"
+            },
+            new Job {
+                Code = "PAR",
+                Name = "Foulon",
+                Category = "Métiers du textile et de l’habillement, petit équipement",
+                Color = "#585858"
+            },
+            new Job {
+                Code = "SAV",
+                Name = "Cordonnier",
+                Category = "Métiers du textile et de l’habillement, petit équipement",
+                Color = "#585858"
+            },
+            new Job {
+                Code = "SRT",
+                Name = "Tailleur",
+                Category = "Métiers du textile et de l’habillement, petit équipement",
+                Color = "#585858"
+            },
+            new Job {
+                Code = "TT",
+                Name = "Teinturier",
+                Category = "Métiers du textile et de l’habillement, petit équipement",
+                Color = "#585858"
+            },
+            new Job {
+                Code = "MAG",
+                Name = "à determiner",
+                Category = "Métiers du textile et de l’habillement, petit équipement",
+                Color = "#585858"
+            },
+            new Job {
+                Code = "COT",
+                Name = "Coutelier",
+                Category = "Métiers du textile et de l’habillement, petit équipement",
+                Color = "#585858"
+            },
+            new Job {
+                Code = "MAC",
+                Name = "Maçon",
+                Category = "Métiers du bâtiment",
+                Color = "#00e130",
+            },
+            new Job {
+                Code = "SAR",
+                Name = "Serrurier",
+                Category = "Métiers du bâtiment",
+                Color = "#00e130",
+            },
+            new Job {
+                Code = "FUS",
+                Name = "Charpentier",
+                Category = "Métiers du bâtiment",
+                Color = "#00e130",
+            },
+            new Job {
+                Code = "HOS",
+                Name = "Hôtelier",
+                Category = "Métiers du commerce",
+                Color = "#0044e1"
+            },
+            new Job {
+                Code = "MAR",
+                Name = "Marchand",
+                Category = "Métiers du commerce",
+                Color = "#0044e1"
+            },
+            new Job {
+                Code = "AP",
+                Name = "Apothicaire",
+                Category = "Métiers du commerce",
+                Color = "#0044e1"
+            },
+            new Job {
+                Code = "IT",
+                Name = "Colporteur",
+                Category = "Métiers du commerce",
+                Color = "#0044e1"
+            },
+            new Job {
+                Code = "PENT",
+                Name = "Pontonnier",
+                Category = "Métiers du transport",
+                Color = "#5ec3fc",
+            },
+            new Job {
+                Code = "BAST",
+                Name = "Bourrelier",
+                Category = "Métiers du transport",
+                Color = "#5ec3fc",
+            },
+            new Job {
+                Code = "MAS",
+                Name = "Boucher",
+                Category = "Boucher",
+                Color = "#9305fc",
+            },
+            new Job {
+                Code = "NOT",
+                Name = "Notaire",
+                Category = "Métiers du droit et de l'écrit",
+                Color = "#fc1405",
+            },
+            new Job {
+                Code = "CLE",
+                Name = "Clerc",
+                Category = "Métiers du droit et de l'écrit",
+                Color = "#fc1405",
+            },
+            new Job {
+                Code = "CUR",
+                Name = "Curé",
+                Category = "Clercs réguliers et séculiers",
+                Color = "#ff008b",
+            },
+            new Job {
+                Code = "REL",
+                Name = "Religieux régulier",
+                Category = "Clercs réguliers et séculiers",
+                Color = "#ff008b",
+            },
+        };
 
         static IEnumerable<Node> ReadNodes()
         {
             List<Node> result = new List<Node>();
             var allOffices = OFFICES.ToDictionary(o => o.Code, o => o);
+            var allJobs = JOBS.ToDictionary(o => o.Code, o => o);
             foreach (var line in File.ReadAllLines("raw_data/nodes.csv").Skip(1))
             {
                 var splitted = line.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                 if(splitted.Length <= 1) {
                     continue;
                 }
-                List<String> rank = new List<string>();
-                List<String> job = new List<string>();
+
+                List<Job> job = new List<Job>();
                 List<Office> offices = new List<Office>();
             
                 if (splitted.Length > 2)
@@ -205,13 +348,23 @@ namespace albi
                     }
                 }
 
+                if (splitted.Length > 3)
+                {
+                    var tmp = splitted[3].Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+                    
+                    foreach(var of in tmp) {
+                        if(allJobs.ContainsKey(of)) {
+                            job.Add(allJobs[of]);
+                        }
+                    }
+                }
+
                 result.Add(new Node
                 {
                     id = int.Parse(splitted[0]),
                     name = Regex.Replace(splitted[1], @"\s+", " "),
                     job = job,
-                    offices = offices.OrderBy(o => o.Rank).ToList(),
-                    rank = rank,
+                    office = offices.OrderBy(o => o.Rank).ToList().FirstOrDefault(),
                 });
             }
 
@@ -311,7 +464,7 @@ namespace albi
 
             graph.nodes = nodes.Select(n => Nodes[n]).ToArray();
             graph.links = links.ToArray();
-            File.WriteAllText("html/witnesses.json", JsonConvert.SerializeObject(graph));
+            File.WriteAllText("webapp/src/data/witnesses.json", JsonConvert.SerializeObject(graph));
         }
 
         private static void WinnerGraph(Sale[] sales)
@@ -362,7 +515,7 @@ namespace albi
 
             graph.nodes = nodes.Select(n => Nodes[n]).ToArray();
             graph.links = links.ToArray();
-            File.WriteAllText("html/winners.json", JsonConvert.SerializeObject(graph));
+            File.WriteAllText("webapp/src/data/winners.json", JsonConvert.SerializeObject(graph));
         }
 
         private static void OverBidGraph(Sale[] sales)
@@ -400,7 +553,7 @@ namespace albi
 
             graph.nodes = nodes.Select(n => Nodes[n]).ToArray();
             graph.links = links.ToArray();
-            File.WriteAllText("html/overbid_graph.json", JsonConvert.SerializeObject(graph));
+            File.WriteAllText("webapp/src/data/overbid_graph.json", JsonConvert.SerializeObject(graph));
         }
 
         private static void FullGraph(Sale[] sales)
@@ -584,7 +737,7 @@ namespace albi
             graph.nodes = nodes.Select(n => Nodes[n]).ToArray();
             graph.links = links.ToArray();
 
-            File.WriteAllText("html/full_graph.json", JsonConvert.SerializeObject(graph));
+            File.WriteAllText("webapp/src/data/full_graph.json", JsonConvert.SerializeObject(graph));
         }
     }
 }
