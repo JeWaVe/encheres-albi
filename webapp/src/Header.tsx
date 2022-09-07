@@ -7,8 +7,9 @@ class Header extends React.Component {
       <div>
         <h1>Encheres Albi</h1>
         <nav>
-          <Link to="/">Home</Link> |{" "}
-          <Link to="/peoples">Nodes</Link> |{" "}
+          <Link to="/">Accueil</Link> |{" "}
+          <Link to="/peoples">Protagonistes</Link> |{" "}
+          <Link to="/fullgraph">Graphique complet</Link> |{" "}
         </nav>
       </div>
     );

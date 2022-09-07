@@ -1,20 +1,22 @@
 import React from 'react';
-import { graph } from "../graph";
+import { nodes } from "../graph";
 import Header from "../Header";
 import { Link } from "react-router-dom";
 
 class Nodes extends React.Component {
   public render() {
-    const allNodes = graph.nodes.sort((a,b) => a.id - b.id).map(n => {
+
+    const allNodes = Object.entries(nodes).map(n => {
       return (
-        <li key={n.id.toString(10)}>
-          <Link to={"/people/" + n.id}>{n.id} -- {n.name}</Link>
+        <li key={n[0]}>
+          <Link to={"/people/" + n[0]}>{n[0]} -- {n[1].name}</Link>
         </li>)
     });
 
     let tmp1: { [key: string]: number } = { "pas de travail connu": 0 };
     let tmp2: { [key: string]: number } = { "pas d'office connu": 0 };
-    graph.nodes.forEach(n => {
+    for(const id in nodes) {
+      const n = nodes[id];
       const oName = n.office?.Name;
       if (!oName) {
         tmp2["pas d'office connu"] += 1;
@@ -34,7 +36,7 @@ class Nodes extends React.Component {
       if (n.job.length === 0) {
         tmp1["pas de travail connu"] += 1;
       }
-    });
+    }
 
     const jobCategories = Object.entries(tmp1).sort((a,b) => b[1] - a[1]).map(kvp => {
       return (<li key={kvp[0]}>
