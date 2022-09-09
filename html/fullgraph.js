@@ -14,7 +14,6 @@ function display_full() {
         .radius(function (d) { return d.y; })
         .angle(function (d) { return d.x / 180 * Math.PI; });
 
-
     var svg = d3.select("#content").append("svg")
         .attr("width", diameter + 300)
         .attr("height", diameter + 300);
@@ -80,6 +79,7 @@ function display_full() {
             .each(d => { d.source = d[0], d.target = d[d.length - 1]; })
             .attr("class", "link")
             .attr("d", line);
+
         const getArc = function (ir, or) {
             return d3.arc()
                 .innerRadius(ir)

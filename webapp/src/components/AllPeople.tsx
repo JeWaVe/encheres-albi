@@ -56,7 +56,6 @@ class Nodes extends React.Component {
 
     return (
       <main>
-        <Header />
         <p>Catégories de métiers</p>
           <ul>{jobCategories}</ul>
         <div>Catégories d'offices</div>

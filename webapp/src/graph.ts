@@ -17,9 +17,13 @@ export interface IOffice {
 }
 
 export interface IPeopleDesc {
+    id: number;
     name: string;
     job: (never | IJob)[];
     office: null | IOffice;
+    outlinks?: number;
+    inlinks?: number;
+    wins?: number[];
 }
 
 export interface IBid {
@@ -33,9 +37,9 @@ export interface ISale {
     Bids: IBid[];
 }
 
-const nodes: {[id: number] : IPeopleDesc } = n;
+let nodes: {[id: number] : IPeopleDesc } = n;
 
-function make_sales() {
+function makeSales() {
     let result: {[id: number] : ISale } = {};
     let id = 0;
     s.forEach(s => {
@@ -44,55 +48,75 @@ function make_sales() {
     return result;
 }
 
-const sales: { [id: number] : ISale } = make_sales();
+function populateNodesWithLinks() {
+    for(const link of links) {
+        let source = nodes[link.source];
+        if(source !== undefined) {
+            if(source.outlinks === undefined) {
+                source.outlinks = 0;
+            }
+            source.outlinks += 1;
+        }
+        let dest = nodes[link.dest];
+        if(dest !== undefined) {
+            if(dest.inlinks === undefined) {
+                dest.inlinks = 0;
+            }
+            dest.inlinks += 1;
+        }
+    }
+}
 
-export enum LinkType {
-    CoOpen,
-    WitnessOpening,
-    CoWitnessOpening,
-    Overbid,
-    WitnessOverbid,
-    CoWitnessOverbid,
-    TakeOver,
-    CoTakeOver,
-    WitnessTake,
-    CoWitnessTake,
-    // InstrumentOver,
-    // CoInstrumentOver,
-    // WitnessInstrument,
-    // CoWitnessInstrument,
-    // CancellationOver,
-    // CoCancellationOver,
-    // WitnessCancellation,
-    // CoWitnessCancellation,
+const sales: { [id: number] : ISale } = makeSales();
+
+export const LinkType: {[key: string]: number; } = {
+    "CoOpen": 0,
+    "WitnessOpening": 1,
+    "CoWitnessOpening": 2,
+    "Overbid": 3,
+    "WitnessOverbid": 4,
+    "CoWitnessOverbid": 5,
+    "TakeOver": 6,
+    "CoTakeOver": 7,
+    "WitnessTake": 8,
+    "CoWitnessTake": 9
 }
 
 export interface ILink {
     source: number;
     dest: number;
-    type: LinkType;
+    type: number; // LinkType
     saleId: number;
 }
 
 function make_co_links(
         saleId: number, 
         result: ILink[], 
-        linkType: LinkType,
+        linkType: number, // LinkType
         sources: number[], 
         dests: number[] = sources, 
     ) {
     sources.forEach(s => {
         dests.forEach(d => {
-            if (sources == dests || s != d) {
+            if (s !== d) {
                 result.push({
                     dest: d,
                     source: s, 
                     saleId: saleId,
                     type: linkType
-                })
+                });
             }
         });
     });
+}
+
+function removeEmptyNodes() {
+    for(const key in nodes) {
+        const node = nodes[key];
+        if((node.outlinks === undefined || node.outlinks === 0) && (node.inlinks === undefined || node.inlinks === 0)) {
+            delete nodes[key];
+        }
+    }
 }
 
 const links: ILink[] = (function make_links() : ILink[] {
@@ -100,15 +124,14 @@ const links: ILink[] = (function make_links() : ILink[] {
     for(const sid in sales) {
         const saleId = parseInt(sid, 10);
         var sale = sales[saleId];
+        let lastBidders: number[] = [];
+        let winners: number[] = [];
+        let winWitnesses: number[] = [];
+        let instrument: number[] = [];
+        let instrumentWitnesses: number[] = [];
         sale.Bids.forEach(b => {
-            let lastBidders: number[] = [];
-            switch(b.Name) {
+            switch(b.Name.trim()) {
                 case "O":
-                    {                    
-                        const openers = b.Bidders;
-                        make_co_links(saleId, result, LinkType.CoOpen, openers);
-                        lastBidders = b.Bidders;
-                    }
                     break;
                 case "T O":
                     {
@@ -128,7 +151,7 @@ const links: ILink[] = (function make_links() : ILink[] {
                 case "E 8":
                 case "E 9":
                 case "E 10":
-                case "E 11":
+                case "E11":
                 case "E N":
                     {
                         const bidders = b.Bidders;
@@ -147,7 +170,7 @@ const links: ILink[] = (function make_links() : ILink[] {
                 case "T 8":
                 case "T 9":
                 case "T 10":
-                case "T 11":
+                case "T11":
                 case "T N":
                     {
                         const witnesses = b.Bidders;
@@ -156,28 +179,47 @@ const links: ILink[] = (function make_links() : ILink[] {
                     }
                     break;
                 case "P 1 (remise de ferme)":
-                    {
-                        const takers = b.Bidders;
-                        make_co_links(saleId, result, LinkType.CoTakeOver, takers);
-                        make_co_links(saleId, result, LinkType.TakeOver, lastBidders);
-                        lastBidders = takers;
-                    }
+                    winners = b.Bidders;
+                    break;
+                case "P 2 (instrument)":
+                    instrument = b.Bidders;
                     break;
                 case "T P1":
-                    {
-                        const witnesses = b.Bidders;
-                        make_co_links(saleId, result, LinkType.WitnessTake, witnesses, lastBidders);
-                        make_co_links(saleId, result, LinkType.CoWitnessTake, witnesses);
-                    }
+                    winWitnesses = b.Bidders;
+                    break;
+                case "T P2":
+                    instrumentWitnesses = b.Bidders;
+                    break;
+                case "P 3 (cancellation)":
+                case "T P3":
                     break;
                 default:
-                    break;
-            };
+                    throw new Error("invalid sale");
+            }
         });
+        
+        // check that with Xavier - should we drop win witnesses in case of instrument
+        if(instrument.length > 0) {
+            winners = instrument;
+            winWitnesses = instrumentWitnesses;
+        }
+        winners.forEach(w => {
+            let guy = nodes[w];
+            if(guy.wins === undefined) {
+                guy.wins = [];
+            }
+            guy.wins.push(saleId);
+        });
+        make_co_links(saleId, result, LinkType.CoWitnessTake, winWitnesses);
+        make_co_links(saleId, result, LinkType.TakeOver, winners, lastBidders);
+        make_co_links(saleId, result, LinkType.CoTakeOver, winners);
+        make_co_links(saleId, result, LinkType.WitnessTake, winWitnesses, winners);
     }
+
     return result;
 })();
 
+populateNodesWithLinks();
+removeEmptyNodes();
 
-
-export { sales, nodes, links};
+export { sales, nodes, links };

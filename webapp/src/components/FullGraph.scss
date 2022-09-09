@@ -1,0 +1,73 @@
+.FullGraph {
+    .chord_node {
+        font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+        fill: #bbb;
+    }
+
+    
+    .source {
+        fill: #2ca02c;
+        font-weight: 700;
+    }
+
+    :hover {
+        fill: black;
+        font-weight: 700;
+    }
+    
+    .target {
+        fill: red;
+        font-weight: 700;
+    }
+
+    .link {
+        stroke: rgb(68, 129, 180);
+        stroke-opacity: 0.4;
+        fill: none;
+        pointer-events: none;
+
+        &.WitnessOverbid {
+            stroke: red;
+        }
+
+        &.CoOpen {
+            stroke: green;
+        }
+
+        &.WitnessOpening {
+            stroke: red;
+        }
+
+        &.CoWitnessOpening {
+            stroke: blue;
+        }
+
+        &.Overbid {
+            stroke: green;
+        }
+
+        &.CoWitnessOverbid {
+            stroke: blue;
+        }
+
+        &.TakeOver {
+            stroke: black;
+        }
+
+        &.CoTakeOver {
+            stroke: blue;
+        }
+
+        &.WitnessTake {
+            stroke: red;
+        }
+
+        &.CoWitnessTake {
+            stroke: blue;
+        }
+
+        &.hidden {
+            display: none;
+        }
+    }
+}
