@@ -132,4 +132,8 @@ $coTakeColor: rgb(255, 0, 208);
             display: none;
         }
     }
+
+    .IgnorePointer {
+        pointer-events: none;
+    }
 }

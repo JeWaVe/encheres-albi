@@ -104,31 +104,33 @@ function make_co_links(
         sources: number[], 
         dests: number[] = sources, 
 ) {
-    if (sources != dests) {
-        sources.forEach(s => {
-            dests.forEach(d => {
-                if (s !== d) {
-                    result.push({
-                        dest: d,
-                        source: s,
-                        saleId: saleId,
-                        type: linkType
-                    });
-                }
-            });
-        })
-    } else {
-        for(let i = 0; i < sources.length; ++i) {
-            for(let j = i+1; j < sources.length; ++j) {
+    for(let i = 0; i < sources.length; ++i) {
+        for(let j = 0; j < dests.length; ++j) {
+            const s = sources[i];
+            const d = dests[j];
+            if(s !== d) {
                 result.push({
-                    dest: sources[j],
-                    source: sources[i],
+                    dest: d,
+                    source: s,
                     saleId: saleId,
-                    type: linkType
+                    type: linkType,
                 });
             }
         }
     }
+    
+    sources.forEach(s => {
+        dests.forEach(d => {
+            if (s !== d) {
+                result.push({
+                    dest: d,
+                    source: s,
+                    saleId: saleId,
+                    type: linkType
+                });
+            }
+        });
+    });
 }
 
 function removeEmptyNodes() {
@@ -244,6 +246,9 @@ const links: ILink[] = (function make_links() : ILink[] {
             guy.wins.push(saleId);
         });
         
+        if(sale.Date === 1436 && sale.Name === "PT") {
+            console.log("toto");
+        }
         make_co_links(saleId, result, LinkType.CoWitnessTake, winWitnesses);
         make_co_links(saleId, result, LinkType.TakeOver, winners, lastBidders);
         make_co_links(saleId, result, LinkType.CoTakeOver, winners);

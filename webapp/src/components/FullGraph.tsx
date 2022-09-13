@@ -1,5 +1,6 @@
 import React from "react";
-import { nodes, links, IPeopleDesc, ILink, LinkType, GetLinkTypeKey } from "../graph";
+import Multiselect from 'multiselect-react-dropdown';
+import { nodes, sales, links, IPeopleDesc, ILink, LinkType, GetLinkTypeKey } from "../graph";
 import * as d3 from "d3";
 import assert from 'assert';
 import "./FullGraph.scss";
@@ -61,6 +62,20 @@ class FullGraph extends React.Component {
     }
 
     public render() {
+        // const allYears = new Set<number>();
+        // const allFarms = new Set<string>();
+        // for(let id in sales) {
+        //     const sale = sales[id];
+        //     allYears.add(sale.Date);
+        //     allFarms.add(sale.Name);
+        // }
+        // let yearOptions: {id: string, name: string}[] = [];
+        // allYears.forEach((id, date) => {
+        //     yearOptions.push({
+        //         id: id.toString(10),
+        //         name: date.toString(10)
+        //     });
+        // });
         return (
             <div className="FullGraph">
                 <div className="Legend">
@@ -80,6 +95,11 @@ class FullGraph extends React.Component {
                         <div className="NodeType"><div className="Square Source"></div>Source</div>
                         <div className="NodeType"><div className="Square Target"></div>Destination</div>
                     </div>
+                    
+                    {/* <Multiselect
+                        options={yearOptions}
+                        displayValue="années"
+                    /> */}
                 </div>
                 <div className="svg">
                     <svg className="container" ref={(ref: SVGSVGElement) => this.ref = ref}></svg>
@@ -234,7 +254,7 @@ class FullGraph extends React.Component {
                 .attr("stroke", this.color(office.data.name))
                 .attr("fill", this.color(office.data.name))
                 .attr("transform", "translate(" + (this.radius + this.offset) + "," + (this.radius + + this.offset) + ")");
-
+            officeElements.append("title").text(office.data.name);
             officeElements.on("mouseover", () => {
                 this.hoveredCategory = officeElements.attr("data-category");
                 this.refreshDetails(nodes, links);
@@ -249,12 +269,14 @@ class FullGraph extends React.Component {
                 .append("textPath")
                 .attr("class", "category")
                 .attr("xlink:href", "#path" + id++)
-                .text(office.data.name);
+                .text(office.data.name)
+                .classed("IgnorePointer", true);
 
             assert(office.children);
 
             for (let j = 0; j < office.children.length; ++j) {
                 const job = office.children[j];
+                const jobName = job.data.name.substring(office.data.name.length + 1);
                 const arc = this.getArc(this.innerRadius + 10, this.innerRadius + 20)(job);
                 const jobElement = svg.append("path")
                     .attr("id", "path" + id)
@@ -263,7 +285,7 @@ class FullGraph extends React.Component {
                     .attr("stroke", this.color(job.data.name))
                     .attr("fill", this.color(job.data.name))
                     .attr("transform", "translate(" + (this.radius + this.offset) + "," + (this.radius + this.offset) + ")");
-
+                jobElement.append("title").text(jobName);
                 jobElement.on("mouseover", () => {
                     this.hoveredCategory = jobElement.attr("data-category");
                     this.refreshDetails(nodes, links);
@@ -278,7 +300,8 @@ class FullGraph extends React.Component {
                     .append("textPath")
                     .attr("class", "category")
                     .attr("xlink:href", "#path" + id++)
-                    .text(office.data.name.substring((office.data.name + " ").length));
+                    .text(jobName)
+                    .classed("IgnorePointer", true);
             }
         }
     }

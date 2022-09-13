@@ -5,7 +5,9 @@ import { Link } from "react-router-dom";
 class Nodes extends React.Component {
   public render() {
 
-    const allNodes = Object.entries(nodes).map(n => {
+    const allNodes = Object.entries(nodes).sort((a, b) => {
+      return (b[1].wins?.length || 0) - (a[1].wins?.length || 0);
+    }).map(n => {
       let allWins = "";
       if(n[1].wins !== undefined && n[1].wins.length > 0) {
         allWins = " a gagné les enchères: " + n[1].wins.map(w => sales[w].Name + "(" + sales[w].Date + ")").join(",");
