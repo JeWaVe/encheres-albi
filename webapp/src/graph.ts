@@ -1,5 +1,6 @@
 import n from "./data/nodes.json";
 import s from "./data/converted_data.json";
+import assert from 'assert';
 
 export interface IJob {
     Code: string;
@@ -74,12 +75,19 @@ export const LinkType: {[key: string]: number; } = {
     "WitnessOpening": 1,
     "CoWitnessOpening": 2,
     "Overbid": 3,
-    "WitnessOverbid": 4,
-    "CoWitnessOverbid": 5,
-    "TakeOver": 6,
-    "CoTakeOver": 7,
-    "WitnessTake": 8,
-    "CoWitnessTake": 9
+    "CoOverbid": 4,
+    "WitnessOverbid": 5,
+    "CoWitnessOverbid": 6,
+    "TakeOver": 7,
+    "CoTakeOver": 8,
+    "WitnessTake": 9,
+    "CoWitnessTake": 10
+}
+
+export function GetLinkTypeKey(val: number) {
+    const pair = Object.entries(LinkType).find((_, n) => n === val);
+    assert(pair !== undefined);
+    return pair[0];
 }
 
 export interface ILink {
@@ -95,19 +103,32 @@ function make_co_links(
         linkType: number, // LinkType
         sources: number[], 
         dests: number[] = sources, 
-    ) {
-    sources.forEach(s => {
-        dests.forEach(d => {
-            if (s !== d) {
+) {
+    if (sources != dests) {
+        sources.forEach(s => {
+            dests.forEach(d => {
+                if (s !== d) {
+                    result.push({
+                        dest: d,
+                        source: s,
+                        saleId: saleId,
+                        type: linkType
+                    });
+                }
+            });
+        })
+    } else {
+        for(let i = 0; i < sources.length; ++i) {
+            for(let j = i+1; j < sources.length; ++j) {
                 result.push({
-                    dest: d,
-                    source: s, 
+                    dest: sources[j],
+                    source: sources[i],
                     saleId: saleId,
                     type: linkType
                 });
             }
-        });
-    });
+        }
+    }
 }
 
 function removeEmptyNodes() {
@@ -119,25 +140,46 @@ function removeEmptyNodes() {
     }
 }
 
+function assignLastBidders(bidders: number[], winners: number[]) {
+    let result = bidders.slice();
+    for(const w of winners) {
+        let index = bidders.indexOf(w);
+        if (index !== -1) {
+            result.splice(index, 1);
+        }
+    }
+
+    return result;
+}
+
 const links: ILink[] = (function make_links() : ILink[] {
     var result: ILink[] = [];
     for(const sid in sales) {
         const saleId = parseInt(sid, 10);
         var sale = sales[saleId];
+        let previousBidders: number[] = [];
         let lastBidders: number[] = [];
-        let winners: number[] = [];
-        let winWitnesses: number[] = [];
-        let instrument: number[] = [];
-        let instrumentWitnesses: number[] = [];
+        let winners: number[] = sale.Bids.find(b => b.Name.trim() === "P 1 (remise de ferme)")?.Bidders || [];
+        let winWitnesses: number[] = sale.Bids.find(b => b.Name.trim() === "T P1")?.Bidders || [];
+        let instrument: number[] = sale.Bids.find(b => b.Name.trim() === "P 2 (instrument)")?.Bidders || [];
+        let instrumentWitnesses: number[]= sale.Bids.find(b => b.Name.trim() === "T P2")?.Bidders || [];
+
+        // check that with Xavier - should we drop win witnesses in case of instrument
+        if(instrument.length > 0) {
+            winners = instrument;
+            winWitnesses = instrumentWitnesses;
+        }
         sale.Bids.forEach(b => {
             switch(b.Name.trim()) {
                 case "O":
+                    previousBidders = b.Bidders;
+                    lastBidders = assignLastBidders(b.Bidders, winners);
+                    make_co_links(saleId, result, LinkType.CoOpen, b.Bidders);
                     break;
                 case "T O":
                     {
-                        const openers = lastBidders;
                         const witnesses = b.Bidders;
-                        make_co_links(saleId, result, LinkType.WitnessOpening, witnesses, openers);
+                        make_co_links(saleId, result, LinkType.WitnessOpening, witnesses, previousBidders);
                         make_co_links(saleId, result, LinkType.CoWitnessOpening, witnesses);
                     }
                     break;
@@ -155,9 +197,13 @@ const links: ILink[] = (function make_links() : ILink[] {
                 case "E N":
                     {
                         const bidders = b.Bidders;
-                        make_co_links(saleId, result, LinkType.CoWitnessOverbid, bidders);
-                        make_co_links(saleId, result, LinkType.Overbid, bidders, lastBidders);
-                        lastBidders = bidders;
+                        const tentative = assignLastBidders(b.Bidders, winners);
+                        if(tentative.length > 0) {
+                            lastBidders = tentative;
+                        }
+                        make_co_links(saleId, result, LinkType.Overbid, bidders, previousBidders);
+                        make_co_links(saleId, result, LinkType.CoOverbid, bidders);
+                        previousBidders = bidders;
                     }
                     break;
                 case "T 1":
@@ -175,21 +221,13 @@ const links: ILink[] = (function make_links() : ILink[] {
                     {
                         const witnesses = b.Bidders;
                         make_co_links(saleId, result, LinkType.CoWitnessOverbid, witnesses);
-                        make_co_links(saleId, result, LinkType.WitnessOverbid, witnesses, lastBidders);
+                        make_co_links(saleId, result, LinkType.WitnessOverbid, witnesses, previousBidders);
                     }
                     break;
                 case "P 1 (remise de ferme)":
-                    winners = b.Bidders;
-                    break;
                 case "P 2 (instrument)":
-                    instrument = b.Bidders;
-                    break;
                 case "T P1":
-                    winWitnesses = b.Bidders;
-                    break;
                 case "T P2":
-                    instrumentWitnesses = b.Bidders;
-                    break;
                 case "P 3 (cancellation)":
                 case "T P3":
                     break;
@@ -197,12 +235,7 @@ const links: ILink[] = (function make_links() : ILink[] {
                     throw new Error("invalid sale");
             }
         });
-        
-        // check that with Xavier - should we drop win witnesses in case of instrument
-        if(instrument.length > 0) {
-            winners = instrument;
-            winWitnesses = instrumentWitnesses;
-        }
+
         winners.forEach(w => {
             let guy = nodes[w];
             if(guy.wins === undefined) {
@@ -210,6 +243,7 @@ const links: ILink[] = (function make_links() : ILink[] {
             }
             guy.wins.push(saleId);
         });
+        
         make_co_links(saleId, result, LinkType.CoWitnessTake, winWitnesses);
         make_co_links(saleId, result, LinkType.TakeOver, winners, lastBidders);
         make_co_links(saleId, result, LinkType.CoTakeOver, winners);

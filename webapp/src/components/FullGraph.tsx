@@ -1,5 +1,5 @@
 import React from "react";
-import { nodes, links, IPeopleDesc, ILink, LinkType } from "../graph";
+import { nodes, links, IPeopleDesc, ILink, LinkType, GetLinkTypeKey } from "../graph";
 import * as d3 from "d3";
 import assert from 'assert';
 import "./FullGraph.scss";
@@ -24,6 +24,31 @@ type LabelledPath = PartialLabelledPath & d3.BaseType;
 class FullGraph extends React.Component {
     private ref!: SVGSVGElement;
 
+    private classNamesToCheckboxId: {[className: string]: string} = {
+        "CoOpen": "bid",
+        "WitnessOpening": "witness",
+        "CoWitnessOpening": "cowitness", 
+        "Overbid": "bid",
+        "CoOverbid": "cobid",
+        "WitnessOverbid": "witness",
+        "CoWitnessOverbid": "cowitness",
+        "TakeOver": "take",
+        "CoTakeOver": "cotake",
+        "WitnessTake": "witness",
+        "CoWitnessTake": "cowitness"
+    };
+
+    private checkBoxAllowDisplayLink(path: LabelledPath) {
+        assert(path.type !== undefined);
+        const className = GetLinkTypeKey(path.type);
+        const result = (document.getElementById(this.classNamesToCheckboxId[className]) as HTMLInputElement).checked;
+        return result;
+    }
+
+    private hoveredCategory: string | undefined;
+    private hoveredNode: d3.HierarchyPointNode<INode> | undefined;
+    private hierarchyRoot: d3.HierarchyPointNode<INode> | undefined;
+
     private color = d3.scaleOrdinal(d3.schemeCategory10);
     private diameter = 960;
     private radius = this.diameter / 2;
@@ -31,14 +56,53 @@ class FullGraph extends React.Component {
     private offset = 100;
 
     public componentDidMount(): void {
-        const root = this.buildGraph(nodes);
-        this.displayGraph(root);
+        this.hierarchyRoot = this.buildGraph(nodes);
+        this.displayGraph();
     }
 
     public render() {
-        return (<div className="svg FullGraph">
-            <svg className="container" ref={(ref: SVGSVGElement) => this.ref = ref}></svg>
-        </div>);
+        return (
+            <div className="FullGraph">
+                <div className="Legend">
+                    <div className="Links">
+                        Couleurs des liens :
+                        <form>
+                            {this.renderLegendItem("Bid", "bid","Surenchérit")}
+                            {this.renderLegendItem("CoBid", "cobid","Surenchérissent ensemble")}
+                            {this.renderLegendItem("Witness", "witness","Témoigne")}
+                            {this.renderLegendItem("CoWitness", "cowitness","Témoignent ensemble")}
+                            {this.renderLegendItem("Take", "take","Prend")}
+                            {this.renderLegendItem("CoTake", "cotake","Prennent ensemble")}
+                        </form>
+                    </div>
+                    <div className="Nodes">
+                        Couleur des noeuds :
+                        <div className="NodeType"><div className="Square Source"></div>Source</div>
+                        <div className="NodeType"><div className="Square Target"></div>Destination</div>
+                    </div>
+                </div>
+                <div className="svg">
+                    <svg className="container" ref={(ref: SVGSVGElement) => this.ref = ref}></svg>
+                </div>
+            </div>);
+    }
+
+    private renderLegendItem(className: string, id: string, name: string) {
+        return (
+        <div className="LinkType">
+            <div className={className + " Square"}></div>
+            <input type="checkbox" id={id} name={name} defaultChecked onChange={() => this.checkBoxChanged()}></input>
+            <label htmlFor={id} id={id}>{name}</label>
+        </div>
+        );
+    }
+
+    private buildGraph(n: { [id: number]: IPeopleDesc; }): d3.HierarchyPointNode<INode> {
+        let r = this.buildTree(n);
+        const cluster = d3.cluster<INode>()
+            .size([360, this.innerRadius]);
+        let root = d3.hierarchy(r);
+        return cluster(root);
     }
 
     private buildTree(n: { [id: number]: IPeopleDesc }): INode {
@@ -56,8 +120,7 @@ class FullGraph extends React.Component {
 
         for (let id in nodes) {
             const n = nodes[id];
-            const office = (n.office?.Name || "no office");
-            const job = office + " " + (n.job.map(j => j.Name).join(', ') || "no job");
+            const { office, job } = this.buildOfficeAndJobName(n);
             const name = id + " : " + n.name;
             if (!map.hasOwnProperty(office)) {
                 map[office] = { name: office, children: [], parent: map["root"] };
@@ -78,7 +141,7 @@ class FullGraph extends React.Component {
             if (!contains(map[job].children, map[name])) {
                 map[job].children.push(map[name]);
             }
-        };
+        }
 
         for(const office of root.children) {
             for(const job of office.children) {
@@ -94,15 +157,14 @@ class FullGraph extends React.Component {
         return root;
     }
 
-    private buildGraph(n: { [id: number]: IPeopleDesc; }): d3.HierarchyPointNode<INode> {
-        let r = this.buildTree(n);
-        const cluster = d3.cluster<INode>()
-            .size([360, this.innerRadius]);
-        let root = d3.hierarchy(r);
-        return cluster(root);
+    private buildOfficeAndJobName(n: IPeopleDesc) {
+        const office = (n.office?.Name || "no office");
+        const job = office + " " + (n.job.map(j => j.Name).join(', ') || "no job");
+        return { office, job };
     }
 
-    private displayGraph(root: d3.HierarchyPointNode<INode>) {
+    private displayGraph() {
+        assert(this.hierarchyRoot);
         let svg = d3.select(this.ref)
             .attr("width", this.diameter + 400)
             .attr("height", this.diameter + 400);
@@ -112,8 +174,8 @@ class FullGraph extends React.Component {
             .attr("transform", "translate(" + (this.radius + this.offset) + "," + (this.radius + this.offset) + ")");
 
 
-        let link = diagram.append("g").selectAll(".link");
-        let node = diagram.append("g").selectAll(".node");
+        let link = diagram.append("g").selectAll(".Link");
+        let node = diagram.append("g").selectAll(".Node");
 
         const line = d3.lineRadial<d3.HierarchyPointNode<INode>>()
             .curve(d3.curveBundle.beta(0.85))
@@ -121,34 +183,49 @@ class FullGraph extends React.Component {
             .angle(d => d.x / 180 * Math.PI);
 
         const nodeElements = node
-            .data(root.leaves())
+            .data(this.hierarchyRoot.leaves())
             .enter().append("text")
-            .attr("class", "chord_node")
+            .attr("class", "Node")
             .attr("dy", "0.31em")
             .attr("transform", function (d) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 38) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
             .attr("text-anchor", function (d) { return d.x < 180 ? "start" : "end"; })
-            .text(function (d) { return d.data.name.substring(0, Math.min(d.data.name.length, 30)); });
+            .text(function (d) { return d.data.name.substring(0, Math.min(d.data.name.length, 30)); })
+            .on("click", (_, d) => {
+                window.location.href='/people/' + d.data.guy?.id;
+            });
 
         // link must be assigned to something to be displayed properly (why the hell???)
         // eslint-disable-next-line
         const linkElements = link
-            .data(this.buildPath(root.leaves(), links))
+            .data(this.buildPath(this.hierarchyRoot.leaves(), links))
             .enter().append("path")
             .each(d => { d.source = d[0]; d.target = d[d.length - 1]; })
-            .attr("class", "link")
+            .attr("class", "Link")
             .attr("d", line);
 
-        nodeElements.on("mouseover", (event: any, d: d3.HierarchyPointNode<INode>) => this.nodeHovered(d, nodeElements, linkElements));
-        nodeElements.on("mouseout", (event: any, d: d3.HierarchyPointNode<INode>) => this.nodeMouseOut(nodeElements, linkElements));
-        this.displayCategories(root, linkElements);
+        nodeElements.on("mouseover", (event: any, d: d3.HierarchyPointNode<INode>)  => {
+            this.hoveredNode = d;
+            this.refreshDetails(nodeElements, linkElements);
+        }); 
+
+        nodeElements.on("mouseout", (event: any, d: d3.HierarchyPointNode<INode>)  => {
+            this.hoveredNode = undefined;
+            this.refreshDetails(nodeElements, linkElements);
+        });
+        
+        this.displayCategories(linkElements, nodeElements);
+
     }
 
-    private displayCategories(root: d3.HierarchyPointNode<INode>, link: d3.Selection<SVGPathElement, LabelledPath, SVGGElement, unknown>) {
+    private displayCategories(
+            links: d3.Selection<SVGPathElement, LabelledPath, SVGGElement, unknown>,
+            nodes: d3.Selection<SVGTextElement, d3.HierarchyPointNode<INode>, SVGGElement, unknown>) {
         let id = 0;
+        assert(this.hierarchyRoot);
         let svg = d3.select(this.ref);
-        assert(root.children);
-        for (let i = 0; i < root.children.length; ++i) {
-            const office = root.children[i];
+        assert(this.hierarchyRoot.children);
+        for (let i = 0; i < this.hierarchyRoot.children.length; ++i) {
+            const office = this.hierarchyRoot.children[i];
             const arc = this.getArc(this.innerRadius, this.innerRadius + 10)(office);
             const officeElements = svg.append("path")
                 .attr("id", "path" + id)
@@ -158,8 +235,14 @@ class FullGraph extends React.Component {
                 .attr("fill", this.color(office.data.name))
                 .attr("transform", "translate(" + (this.radius + this.offset) + "," + (this.radius + + this.offset) + ")");
 
-            officeElements.on("mouseover", () => this.categoryHovered(root, officeElements, link));
-            officeElements.on("mouseout", () => this.categoryOut(link));
+            officeElements.on("mouseover", () => {
+                this.hoveredCategory = officeElements.attr("data-category");
+                this.refreshDetails(nodes, links);
+            });
+            officeElements.on("mouseout",() => {
+                this.hoveredCategory = undefined;
+                this.refreshDetails(nodes, links);
+            });
 
             svg.append("text")
                 .attr("dy", 8)
@@ -181,8 +264,14 @@ class FullGraph extends React.Component {
                     .attr("fill", this.color(job.data.name))
                     .attr("transform", "translate(" + (this.radius + this.offset) + "," + (this.radius + this.offset) + ")");
 
-                jobElement.on("mouseover", () => this.categoryHovered(root, jobElement, link));
-                jobElement.on("mouseout", () => this.categoryOut(link));
+                jobElement.on("mouseover", () => {
+                    this.hoveredCategory = jobElement.attr("data-category");
+                    this.refreshDetails(nodes, links);
+                });
+                jobElement.on("mouseout",() => {
+                    this.hoveredCategory = undefined;
+                    this.refreshDetails(nodes, links);
+                });
 
                 svg.append("text")
                     .attr("dy", 8)
@@ -246,33 +335,6 @@ class FullGraph extends React.Component {
         return this.degToRad(max + 1);
     }
 
-
-    private categoryHovered(root: d3.HierarchyPointNode<INode>, elem: d3.Selection<SVGPathElement, unknown, null, undefined>, link: d3.Selection<SVGPathElement, LabelledPath, SVGGElement, unknown>) {
-        let catnode = this.findCatNode(root, elem.attr("data-category"));
-        if (catnode === undefined) {
-            return;
-        }
-
-        let leaves = catnode.leaves();
-        for (let key in LinkType) {
-            link.classed(key, l => {
-                return l !== undefined
-                    && l.type === LinkType[key]
-                    && leaves.find(n => n.data.guy?.id === l.source?.data?.guy?.id) !== undefined;
-            });
-        }
-
-        link.classed("hidden", l => l !== undefined && !leaves.find(n => n.data.guy?.id === l.source?.data.guy?.id))
-    }
-
-    private categoryOut(link: d3.Selection<SVGPathElement, LabelledPath, SVGGElement, unknown>) {
-        for (let key in LinkType) {
-            link.classed(key, false);
-        }
-        link.classed("hidden", false);
-    }
-
-
     private findCatNode(node: d3.HierarchyPointNode<INode>, name: string): d3.HierarchyPointNode<INode> | undefined {
         if (node.data.name === name) {
             return node;
@@ -288,47 +350,107 @@ class FullGraph extends React.Component {
         }
     }
 
-    private nodeHovered(node: d3.HierarchyPointNode<INode>, nodeElements: d3.Selection<SVGTextElement, d3.HierarchyPointNode<INode>, SVGGElement, unknown>,
-                        linkElements: d3.Selection<SVGPathElement, LabelledPath, SVGGElement, unknown>) {
-        nodeElements.each(function (n) { n.data.isTarget = n.data.isSource = false; });
+    private refreshDetails(
+        nodeElements: d3.Selection<SVGTextElement, d3.HierarchyPointNode<INode>, any, unknown>,
+        linkElements: d3.Selection<SVGPathElement, LabelledPath, any, unknown>) {
+        this.restoreDefault(nodeElements, linkElements);
+        const hoveredNode = this.hoveredNode;
+        let _that = this;
+        
+        // color links
+        linkElements.each(function (path: LabelledPath) {
+            let l = d3.select(this);
+            l.classed("hidden", true);
+            assert(path.target);
+            assert(path.source);
+            assert(path.type !== undefined);
 
-        for(let key in LinkType) {
-            linkElements
-                .classed(key, l => {
-                    if (l.type === LinkType[key] && l.source?.data.guy?.id === node.data.guy?.id) {
-                        assert(l.target);
-                        return l.target.data.isTarget = true;
-                    }
-                    return false;
-                })
-                .classed(key, l => {
-                    if (l.type === LinkType[key] && l.target?.data.guy?.id === node.data.guy?.id) {
-                        assert(l.source);
-                        return l.source.data.isSource = true;
-                    }
-                    return false;
-                }).raise();
-        }
-
-        linkElements.classed("hidden", l => {
-            return l.source?.data.guy?.id != node.data.guy?.id && l.target?.data.guy?.id != node.data.guy?.id;
+            if(hoveredNode !== undefined) {
+                _that.displayNodeLink(path, l);
+            } 
+            else if (_that.hoveredCategory !== undefined) {
+                _that.displayCategoryLink(path, l);
+            } else {
+                if(_that.checkBoxAllowDisplayLink(path)) {
+                    l.classed("hidden", false);
+                }
+            }
         });
 
+        // color nodes
         nodeElements
             .classed("target", n => n.data.isTarget === true)
             .classed("source", n => n.data.isSource === true);
     }
 
-    private nodeMouseOut(nodeElements: d3.Selection<SVGTextElement, d3.HierarchyPointNode<INode>, SVGGElement, unknown>,
-        linkElements: d3.Selection<SVGPathElement, LabelledPath, SVGGElement, unknown>) {
-            for(let key in LinkType) {
-                linkElements.classed(key, false);
+    private displayCategoryLink(path: LabelledPath, l: d3.Selection<SVGPathElement, unknown, null, undefined>) {
+        assert(this.hoveredCategory);
+        assert(this.hierarchyRoot);
+        assert(path.target);
+        assert(path.source);
+        assert(path.type !== undefined);
+        assert(path.source.data.guy);
+        assert(path.target.data.guy);
+        const linkType = GetLinkTypeKey(path.type);
+        const catNode = this.findCatNode(this.hierarchyRoot, this.hoveredCategory);
+        if (catNode !== undefined) {
+            if (this.checkBoxAllowDisplayLink(path)
+                && (this.hoveredCategory === path.source.data.guy?.office?.Name
+                || this.hoveredCategory === path.target.data.guy?.office?.Name
+                || this.buildOfficeAndJobName(path.source.data.guy).job === this.hoveredCategory
+                || this.buildOfficeAndJobName(path.source.data.guy).office === this.hoveredCategory
+                || this.buildOfficeAndJobName(path.target.data.guy).job === this.hoveredCategory
+                || this.buildOfficeAndJobName(path.target.data.guy).office === this.hoveredCategory)) {
+                l.classed(linkType, true);
+                l.classed("hidden", false);
             }
-
-            linkElements.classed("hidden", false);
-            nodeElements.classed("target", false).classed("source", false);
+        }
     }
-   
+
+    private displayNodeLink(path: LabelledPath, l: d3.Selection<SVGPathElement, unknown, null, undefined>) {
+        assert(path.source);
+        assert(path.target);
+        assert(path.type !== undefined);
+        assert(path.source.data.guy);
+        assert(path.target.data.guy);
+        assert(this.hoveredNode);
+        assert(this.hoveredNode.data.guy);
+        const linkType = GetLinkTypeKey(path.type);
+        if (this.checkBoxAllowDisplayLink(path) &&
+            (path.source.data.guy.id === this.hoveredNode.data.guy.id
+                || path.target.data.guy.id === this.hoveredNode.data.guy.id)) {
+            l.classed("hidden", false)
+             .classed(linkType, true);
+            path.source.data.isSource = true;
+            path.target.data.isTarget = true;
+        }
+    }
+
+    private restoreDefault(nodeElements: d3.Selection<SVGTextElement, d3.HierarchyPointNode<INode>, SVGGElement, unknown>,
+        // restore to initial state
+        linkElements: d3.Selection<SVGPathElement, LabelledPath, SVGGElement, unknown>) 
+    {
+        nodeElements.each(function (n) { n.data.isTarget = n.data.isSource = false; });
+        linkElements.each(function (path: LabelledPath) {
+            let l = d3.select(this);
+            l.classed("hidden", false);
+
+            for (let key in LinkType) {
+                l.classed(key, false);
+            }
+        });
+
+        nodeElements
+            .classed("target", n => n.data.isTarget = false)
+            .classed("source", n => n.data.isSource = false);
+    }
+
+    private checkBoxChanged() {
+        var linkElements = d3.selectAll<SVGPathElement, LabelledPath>(".Link");
+        var nodeElements = d3.selectAll<SVGTextElement, d3.HierarchyPointNode<INode>>(".Node");
+        assert(this.hierarchyRoot);
+        this.refreshDetails(nodeElements, linkElements);
+    }
 }
 
 export default FullGraph;

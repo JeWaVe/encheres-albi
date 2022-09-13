@@ -1,69 +1,131 @@
+$targetcolor: red;
+$sourceColor: green;
+
+$coWitnessColor: green;
+$bidColor: red;
+$coBidColor: yellow;
+$witnessColor: blue;
+$takeColor: black;
+$coTakeColor: rgb(255, 0, 208);
+
 .FullGraph {
-    .chord_node {
+    .Legend {
+        .Square {
+            width: 10px;
+            height: 10px;
+            float: left;
+            margin-right: 10px;
+        };
+        .Links {
+            float: left;
+        }
+        .LinkType {
+            .Square {
+                &.Bid {
+                    background-color: $bidColor;
+                    width: 10px;
+                    height: 10px;
+                    float: left;
+                }
+
+                &.CoBid {
+                    background-color: $coBidColor;
+                }
+
+                &.Witness {
+                    background-color: $witnessColor;
+                }
+
+                &.CoWitness {
+                    background-color: $coWitnessColor;
+                }
+
+                &.Take {
+                    background-color: $takeColor;
+                }
+
+                &.CoTake {
+                    background-color: $coTakeColor;
+                }
+            }
+        }
+
+        .NodeType {
+            .Source {
+                background-color: $sourceColor;
+            }
+            .Target {
+                background-color: $targetcolor;
+            }
+        }
+    }
+
+    .Node {
         font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
         fill: #bbb;
-    }
+        cursor: pointer;
 
+        &.source {
+            fill: $sourceColor;
+            font-weight: 700;
+        }
     
-    .source {
-        fill: #2ca02c;
-        font-weight: 700;
+        &:hover {
+            fill: black;
+            font-weight: 700;
+        }
+        
+        &.target {
+            fill: $targetcolor;
+            font-weight: 700;
+        }
     }
 
-    :hover {
-        fill: black;
-        font-weight: 700;
-    }
-    
-    .target {
-        fill: red;
-        font-weight: 700;
-    }
-
-    .link {
+    .Link {
         stroke: rgb(68, 129, 180);
+        stroke-width: 2px;
         stroke-opacity: 0.4;
         fill: none;
         pointer-events: none;
 
-        &.WitnessOverbid {
-            stroke: red;
-        }
-
         &.CoOpen {
-            stroke: green;
+            stroke: $coBidColor;
         }
 
         &.WitnessOpening {
-            stroke: red;
+            stroke: $witnessColor;
         }
 
-        &.CoWitnessOpening {
-            stroke: blue;
-        }
-
-        &.Overbid {
-            stroke: green;
-        }
-
-        &.CoWitnessOverbid {
-            stroke: blue;
-        }
-
-        &.TakeOver {
-            stroke: black;
-        }
-
-        &.CoTakeOver {
-            stroke: blue;
+        &.WitnessOverbid {
+            stroke: $witnessColor;
         }
 
         &.WitnessTake {
-            stroke: red;
+            stroke: $witnessColor;
+        }
+
+        &.CoWitnessOpening {
+            stroke: $coWitnessColor;
+        }
+
+        &.CoWitnessOverbid {
+            stroke: $coWitnessColor;
         }
 
         &.CoWitnessTake {
-            stroke: blue;
+            stroke: $coWitnessColor;
+        }
+
+        &.Overbid {
+            stroke: $bidColor;
+        }
+
+        &.TakeOver {
+            stroke: $takeColor;
+        }
+
+        &.CoTakeOver {
+            stroke: $coTakeColor;
         }
 
         &.hidden {

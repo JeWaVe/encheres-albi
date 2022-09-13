@@ -1,15 +1,18 @@
 import React from 'react';
-import { nodes } from "../graph";
-import Header from "../Header";
+import { nodes, sales } from "../graph";
 import { Link } from "react-router-dom";
 
 class Nodes extends React.Component {
   public render() {
 
     const allNodes = Object.entries(nodes).map(n => {
+      let allWins = "";
+      if(n[1].wins !== undefined && n[1].wins.length > 0) {
+        allWins = " a gagné les enchères: " + n[1].wins.map(w => sales[w].Name + "(" + sales[w].Date + ")").join(",");
+      }
       return (
         <li key={n[0]}>
-          <Link to={"/people/" + n[0]}>{n[0]} -- {n[1].name}</Link>
+          <Link to={"/people/" + n[0]}>{n[0]} -- {n[1].name} -- {allWins}</Link>
         </li>)
     });
 
