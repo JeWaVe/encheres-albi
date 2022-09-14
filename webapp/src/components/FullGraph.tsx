@@ -1,9 +1,10 @@
 import React from "react";
 import Multiselect from 'multiselect-react-dropdown';
-import { nodes, sales, links, IPeopleDesc, ILink, LinkType, GetLinkTypeKey } from "../graph";
+import { nodes, links, IPeopleDesc, ILink, LinkType, GetLinkTypeKey } from "../graph";
 import * as d3 from "d3";
 import assert from 'assert';
 import "./FullGraph.scss";
+import FullGraphState from "./FullGraphState";
 
 interface INode {
     name: string;
@@ -22,28 +23,12 @@ interface PartialLabelledPath extends Array<d3.HierarchyPointNode<INode>> {
 
 type LabelledPath = PartialLabelledPath & d3.BaseType;
 
-class FullGraph extends React.Component {
+class FullGraph extends React.Component<{}, FullGraphState> {
     private ref!: SVGSVGElement;
 
-    private classNamesToCheckboxId: {[className: string]: string} = {
-        "CoOpen": "bid",
-        "WitnessOpening": "witness",
-        "CoWitnessOpening": "cowitness", 
-        "Overbid": "bid",
-        "CoOverbid": "cobid",
-        "WitnessOverbid": "witness",
-        "CoWitnessOverbid": "cowitness",
-        "TakeOver": "take",
-        "CoTakeOver": "cotake",
-        "WitnessTake": "witness",
-        "CoWitnessTake": "cowitness"
-    };
-
-    private checkBoxAllowDisplayLink(path: LabelledPath) {
-        assert(path.type !== undefined);
-        const className = GetLinkTypeKey(path.type);
-        const result = (document.getElementById(this.classNamesToCheckboxId[className]) as HTMLInputElement).checked;
-        return result;
+    constructor(props: any) {
+        super(props);
+        this.state = new FullGraphState();
     }
 
     private hoveredCategory: string | undefined;
@@ -62,32 +47,39 @@ class FullGraph extends React.Component {
     }
 
     public render() {
-        // const allYears = new Set<number>();
-        // const allFarms = new Set<string>();
-        // for(let id in sales) {
-        //     const sale = sales[id];
-        //     allYears.add(sale.Date);
-        //     allFarms.add(sale.Name);
-        // }
-        // let yearOptions: {id: string, name: string}[] = [];
-        // allYears.forEach((id, date) => {
-        //     yearOptions.push({
-        //         id: id.toString(10),
-        //         name: date.toString(10)
-        //     });
-        // });
+        const allCheckBoxes = [];
+        const checkBoxesState = this.state.LinkTypeCheckBoxesStates;
+        for(let id in checkBoxesState) {
+            switch (id) {
+                case "bid":
+                    allCheckBoxes.push(this.renderLegendItem("Bid", "bid","Surenchérit", checkBoxesState[id]));
+                    break;
+                case "cobid":
+                    allCheckBoxes.push(this.renderLegendItem("CoBid", "cobid", "Enchérissent ensemble", checkBoxesState[id]));
+                    break;
+                case "witness":
+                    allCheckBoxes.push(this.renderLegendItem("Witness", "witness", "Témoigne", checkBoxesState[id]));
+                    break;
+                case "cowitness":
+                    allCheckBoxes.push(this.renderLegendItem("CoWitness", "cowitness", "Témoignent ensemble", checkBoxesState[id]));
+                    break;
+                case "take":
+                    allCheckBoxes.push(this.renderLegendItem("Take", "take", "Prend", checkBoxesState[id]));
+                    break;
+                case "cotake":
+                    allCheckBoxes.push(this.renderLegendItem("CoTake", "cotake", "Prennent ensemble", checkBoxesState[id]));
+                    break;
+                default:
+                    break;
+            }
+        }
         return (
             <div className="FullGraph">
                 <div className="Legend">
                     <div className="Links">
                         Couleurs des liens :
                         <form>
-                            {this.renderLegendItem("Bid", "bid","Surenchérit")}
-                            {this.renderLegendItem("CoBid", "cobid","Surenchérissent ensemble")}
-                            {this.renderLegendItem("Witness", "witness","Témoigne")}
-                            {this.renderLegendItem("CoWitness", "cowitness","Témoignent ensemble")}
-                            {this.renderLegendItem("Take", "take","Prend")}
-                            {this.renderLegendItem("CoTake", "cotake","Prennent ensemble")}
+                            {allCheckBoxes}
                         </form>
                     </div>
                     <div className="Nodes">
@@ -95,11 +87,6 @@ class FullGraph extends React.Component {
                         <div className="NodeType"><div className="Square Source"></div>Source</div>
                         <div className="NodeType"><div className="Square Target"></div>Destination</div>
                     </div>
-                    
-                    {/* <Multiselect
-                        options={yearOptions}
-                        displayValue="années"
-                    /> */}
                 </div>
                 <div className="svg">
                     <svg className="container" ref={(ref: SVGSVGElement) => this.ref = ref}></svg>
@@ -107,11 +94,11 @@ class FullGraph extends React.Component {
             </div>);
     }
 
-    private renderLegendItem(className: string, id: string, name: string) {
+    private renderLegendItem(className: string, id: string, name: string, checked: boolean) {
         return (
         <div className="LinkType">
             <div className={className + " Square"}></div>
-            <input type="checkbox" id={id} name={name} defaultChecked onChange={() => this.checkBoxChanged()}></input>
+            <input type="checkbox" id={id} name={name} checked={checked} onChange={(event) => this.checkBoxChanged(event)}></input>
             <label htmlFor={id} id={id}>{name}</label>
         </div>
         );
@@ -230,7 +217,7 @@ class FullGraph extends React.Component {
 
         nodeElements.on("mouseout", (event: any, d: d3.HierarchyPointNode<INode>)  => {
             this.hoveredNode = undefined;
-            this.refreshDetails(nodeElements, linkElements);
+            this.restoreDefault(nodeElements, linkElements);
         });
         
         this.displayCategories(linkElements, nodeElements);
@@ -261,7 +248,7 @@ class FullGraph extends React.Component {
             });
             officeElements.on("mouseout",() => {
                 this.hoveredCategory = undefined;
-                this.refreshDetails(nodes, links);
+                this.restoreDefault(nodes, links);
             });
 
             svg.append("text")
@@ -292,7 +279,7 @@ class FullGraph extends React.Component {
                 });
                 jobElement.on("mouseout",() => {
                     this.hoveredCategory = undefined;
-                    this.refreshDetails(nodes, links);
+                    this.restoreDefault(nodes, links);
                 });
 
                 svg.append("text")
@@ -387,7 +374,6 @@ class FullGraph extends React.Component {
             assert(path.target);
             assert(path.source);
             assert(path.type !== undefined);
-
             if(hoveredNode !== undefined) {
                 _that.displayNodeLink(path, l);
             } 
@@ -401,9 +387,13 @@ class FullGraph extends React.Component {
         });
 
         // color nodes
+        if (hoveredNode !== undefined) {
+            nodeElements
+                .classed("target", n => n.data.isTarget === true)
+                .classed("source", n => n.data.isSource === true);
+        }
         nodeElements
-            .classed("target", n => n.data.isTarget === true)
-            .classed("source", n => n.data.isSource === true);
+            .classed("shadowed", n => n.data.isTarget === false && n.data.isSource === false);
     }
 
     private displayCategoryLink(path: LabelledPath, l: d3.Selection<SVGPathElement, unknown, null, undefined>) {
@@ -423,7 +413,9 @@ class FullGraph extends React.Component {
                 || this.buildOfficeAndJobName(path.source.data.guy).job === this.hoveredCategory
                 || this.buildOfficeAndJobName(path.source.data.guy).office === this.hoveredCategory
                 || this.buildOfficeAndJobName(path.target.data.guy).job === this.hoveredCategory
-                || this.buildOfficeAndJobName(path.target.data.guy).office === this.hoveredCategory)) {
+                || this.buildOfficeAndJobName(path.target.data.guy).office === this.hoveredCategory)) {   
+                path.target.data.isTarget = true;
+                path.source.data.isSource = true;
                 l.classed(linkType, true);
                 l.classed("hidden", false);
             }
@@ -454,7 +446,7 @@ class FullGraph extends React.Component {
         linkElements: d3.Selection<SVGPathElement, LabelledPath, SVGGElement, unknown>) 
     {
         nodeElements.each(function (n) { n.data.isTarget = n.data.isSource = false; });
-        linkElements.each(function (path: LabelledPath) {
+        linkElements.each(function (_: LabelledPath) {
             let l = d3.select(this);
             l.classed("hidden", false);
 
@@ -465,14 +457,23 @@ class FullGraph extends React.Component {
 
         nodeElements
             .classed("target", n => n.data.isTarget = false)
-            .classed("source", n => n.data.isSource = false);
+            .classed("source", n => n.data.isSource = false)
+            .classed("shadowed", false);
     }
 
-    private checkBoxChanged() {
+    private checkBoxChanged(event: React.ChangeEvent<HTMLInputElement>) {
         var linkElements = d3.selectAll<SVGPathElement, LabelledPath>(".Link");
         var nodeElements = d3.selectAll<SVGTextElement, d3.HierarchyPointNode<INode>>(".Node");
+        this.state.LinkTypeCheckBoxesStates[event.currentTarget.id] = event.currentTarget.checked;
+        this.setState(this.state);
         assert(this.hierarchyRoot);
         this.refreshDetails(nodeElements, linkElements);
+    }
+
+    private checkBoxAllowDisplayLink(path: LabelledPath) {
+        assert(path.type !== undefined);
+        const className = GetLinkTypeKey(path.type);
+        return this.state.LinkTypeCheckBoxesStates[this.state.classNamesToCheckboxId[className]];
     }
 }
 

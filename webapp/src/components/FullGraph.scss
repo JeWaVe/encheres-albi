@@ -79,6 +79,10 @@ $coTakeColor: rgb(255, 0, 208);
             fill: $targetcolor;
             font-weight: 700;
         }
+
+        &.shadowed {
+            opacity: 0.2;
+        }
     }
 
     .Link {
