@@ -39,7 +39,7 @@ function People() {
                     console.log(l.type);
             }
 
-            return;
+            return "";
     });
 
     return <div>

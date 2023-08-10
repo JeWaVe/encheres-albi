@@ -1,5 +1,3 @@
-import * as d3 from "d3";
-
 export default class FullGraphState {
     public readonly LinkTypeCheckBoxesStates: {[id: string] : boolean} = {
         "bid": true,

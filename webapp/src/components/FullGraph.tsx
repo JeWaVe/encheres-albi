@@ -96,7 +96,7 @@ class FullGraph extends React.Component<{}, FullGraphState> {
 
     private renderLegendItem(className: string, id: string, name: string, checked: boolean) {
         return (
-        <div className="LinkType">
+        <div className="LinkType" key={id}>
             <div className={className + " Square"}></div>
             <input type="checkbox" id={id} name={name} checked={checked} onChange={(event) => this.checkBoxChanged(event)}></input>
             <label htmlFor={id} id={id}>{name}</label>
