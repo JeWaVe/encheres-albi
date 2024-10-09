@@ -203,6 +203,9 @@ const links: ILink[] = (function make_links() : ILink[] {
                         if(tentative.length > 0) {
                             lastBidders = tentative;
                         }
+                        if(previousBidders.length === 0) {
+                            previousBidders = [0];
+                        }
                         make_co_links(saleId, result, LinkType.Overbid, bidders, previousBidders);
                         make_co_links(saleId, result, LinkType.CoOverbid, bidders);
                         previousBidders = bidders;
@@ -245,9 +248,9 @@ const links: ILink[] = (function make_links() : ILink[] {
             }
             guy.wins.push(saleId);
         });
-        
-        if(sale.Date === 1436 && sale.Name === "PT") {
-            console.log("toto");
+
+        if(lastBidders.length === 0) {
+            lastBidders = [0];
         }
         make_co_links(saleId, result, LinkType.CoWitnessTake, winWitnesses);
         make_co_links(saleId, result, LinkType.TakeOver, winners, lastBidders);

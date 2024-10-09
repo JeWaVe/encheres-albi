@@ -16,6 +16,13 @@ namespace albi
 
         public static HashSet<Office> ALL = new HashSet<Office> {
             new Office {
+                Rank = 1000,
+                Code = "EMPTY",
+                Name = "EMPTY",
+                Color = "#000000",
+                Category = "EMPTY"
+            },
+            new Office {
                 Rank = 0,
                 Code = "LTV", 
                 Name = "Lieutenant du Viguier", 

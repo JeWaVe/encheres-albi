@@ -6,6 +6,12 @@ namespace albi
         
         public static HashSet<Job> ALL = new HashSet<Job> {
             new Job {
+                Code = "EMPTY",
+                Name = "EMPTY",
+                Category = "EMPTY",
+                Color = "#000000"
+            },
+            new Job {
                 Code = "AF", 
                 Name = "Travailleur",
                 Category = "Ouvriers",

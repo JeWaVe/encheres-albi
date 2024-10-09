@@ -5,7 +5,7 @@ class App extends React.Component {
   public render() {
     return (
       <main>
-        <h2>hello app</h2>
+        <h2>Visualisation données des enchères à Albi</h2>
       </main>
     );
   }

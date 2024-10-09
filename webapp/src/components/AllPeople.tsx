@@ -46,7 +46,7 @@ class Nodes extends React.Component {
     const jobCategories = Object.entries(tmp1).sort((a,b) => b[1] - a[1]).map(kvp => {
       return (<li key={kvp[0]}>
         <div>
-          {kvp[0]} : {kvp[1] + " vrais mecs"}
+          {kvp[0]} : {kvp[1] + " personnes"}
         </div>
       </li>);
     });
@@ -54,7 +54,7 @@ class Nodes extends React.Component {
     const officeCategories = Object.entries(tmp2).sort((a,b) => b[1] - a[1]).map(kvp => {
       return (<li key={kvp[0]}>
         <div>
-          {kvp[0]} : {kvp[1] + " vrais mecs"}
+          {kvp[0]} : {kvp[1] + " personnes"}
         </div>
       </li>);
     });

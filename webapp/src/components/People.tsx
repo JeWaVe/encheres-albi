@@ -1,18 +1,18 @@
 import { useLocation, Link } from "react-router-dom";
-import { nodes, links, sales, LinkType } from "../graph";
+import { nodes, links, sales, LinkType, IJob, ILink } from "../graph";
 
 function People() {
     const path = useLocation().pathname.split('/');
     const id = parseInt(path[path.length - 1], 10);
     const node = nodes[id];
-    const allJobs = node.job.map((j, i) => <li key={i}>{j.Name} : {j.Category}</li>);
+    const allJobs = node.job.map((j: IJob, i: number) => <li key={i}>{j.Name} : {j.Category}</li>);
 
-    const allActions = links.filter(l => l.source === id)
-         .map((l,i) => {
+    const allActions = links.filter((l: ILink) => l.source === id)
+        .map((l: ILink, i: number) => {
             let saleName = formatSale(l.saleId);
             let targetName = formatTarget(l.dest);
-            
-            switch(l.type) {
+
+            switch (l.type) {
                 case LinkType.Overbid:
                     return <li key={i}>a surenchéri sur {targetName} lors de l'enchère {saleName}</li>;
                 case LinkType.CoOverbid:
@@ -30,7 +30,7 @@ function People() {
                 case LinkType.WitnessOpening:
                     return <li key={i}>a témoigné pour {targetName} pour l'ouverture de l'enchère {saleName}</li>;
                 case LinkType.CoWitnessOpening:
-                    return <li key={i}>a témoigné avec {targetName} pour l'ouverture' de l'enchère {saleName}</li>;
+                    return <li key={i}>a témoigné avec {targetName} pour l'ouverture de l'enchère {saleName}</li>;
                 case LinkType.WitnessTake:
                     return <li key={i}>a témoigné pour {targetName} pour la prise de l'enchère {saleName}</li>;
                 case LinkType.CoOpen:
@@ -40,7 +40,7 @@ function People() {
             }
 
             return "";
-    });
+        });
 
     return <div>
         <p>{node.name} - {node.office?.Name} ({node.office?.Category})</p>

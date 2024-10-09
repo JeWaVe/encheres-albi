@@ -11,7 +11,12 @@ namespace albi
     {
         static IEnumerable<Node> ReadNodes()
         {
-            List<Node> result = new List<Node>();
+            List<Node> result = [new Node {
+                id = 0,
+                job = [Job.ALL.First(j => j.Code == "EMPTY")],
+                office = Office.ALL.First(o => o.Code == "EMPTY"),
+                name = "PERSONNE"
+            }];
             var allOffices = Office.ALL.ToDictionary(o => o.Code, o => o);
             var allJobs = Job.ALL.ToDictionary(o => o.Code, o => o);
             foreach (var line in File.ReadAllLines("../raw_data/nodes.csv").Skip(1))
@@ -64,7 +69,7 @@ namespace albi
         {
             Nodes = ReadNodes().ToDictionary((n) => n.id);
 
-            string[] lines = File.ReadAllLines("../raw_data/base.csv");
+            string[] lines = File.ReadAllLines("../raw_data/table_encheres.csv");
 
             var years = lines[0].Split(",").Skip(1).Select(s => int.Parse(s.Trim())).ToArray();
             var names = lines[1].Split(",").Skip(1).Select(s => s.Trim()).ToArray();
@@ -77,7 +82,7 @@ namespace albi
             {
                 Date = pair.First,
                 Name = pair.Second,
-                Bids = new List<Bid>()
+                Bids = []
             }).ToArray();
 
             foreach (var line in lines.Skip(3))

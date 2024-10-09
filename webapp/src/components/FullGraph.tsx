@@ -179,7 +179,18 @@ class FullGraph extends React.Component<{}, FullGraphState> {
         let diagram = svg
             .append("g")
             .attr("transform", "translate(" + (this.radius + this.offset) + "," + (this.radius + this.offset) + ")");
-
+     
+        svg.append("defs").append("marker")
+            .attr("id", "arrow") // Marker id
+            .attr("viewBox", "0 -5 10 10") // Marker viewbox
+            .attr("refX", 10) // Position of the arrowhead on the path
+            .attr("refY", 0)
+            .attr("markerWidth", 6) // Width of the arrow
+            .attr("markerHeight", 6) // Height of the arrow
+            .attr("orient", "auto") // Orient the arrowhead automatically
+            .append("path")
+            .attr("d", "M0,-5L10,0L0,5") // Shape of the arrowhead
+            .attr("fill", "#000"); // Arrow color (black)
 
         let link = diagram.append("g").selectAll(".Link");
         let node = diagram.append("g").selectAll(".Node");
@@ -208,7 +219,8 @@ class FullGraph extends React.Component<{}, FullGraphState> {
             .enter().append("path")
             .each(d => { d.source = d[0]; d.target = d[d.length - 1]; })
             .attr("class", "Link")
-            .attr("d", line);
+            .attr("d", line)
+            .attr("marker-end", "url(#arrow)"); 
 
         nodeElements.on("mouseover", (event: any, d: d3.HierarchyPointNode<INode>)  => {
             this.hoveredNode = d;
@@ -411,9 +423,7 @@ class FullGraph extends React.Component<{}, FullGraphState> {
                 && (this.hoveredCategory === path.source.data.guy?.office?.Name
                 || this.hoveredCategory === path.target.data.guy?.office?.Name
                 || this.buildOfficeAndJobName(path.source.data.guy).job === this.hoveredCategory
-                || this.buildOfficeAndJobName(path.source.data.guy).office === this.hoveredCategory
-                || this.buildOfficeAndJobName(path.target.data.guy).job === this.hoveredCategory
-                || this.buildOfficeAndJobName(path.target.data.guy).office === this.hoveredCategory)) {   
+                || this.buildOfficeAndJobName(path.source.data.guy).office === this.hoveredCategory)) {   
                 path.target.data.isTarget = true;
                 path.source.data.isSource = true;
                 l.classed(linkType, true);
@@ -432,8 +442,7 @@ class FullGraph extends React.Component<{}, FullGraphState> {
         assert(this.hoveredNode.data.guy);
         const linkType = GetLinkTypeKey(path.type);
         if (this.checkBoxAllowDisplayLink(path) &&
-            (path.source.data.guy.id === this.hoveredNode.data.guy.id
-                || path.target.data.guy.id === this.hoveredNode.data.guy.id)) {
+            path.source.data.guy.id === this.hoveredNode.data.guy.id) {
             l.classed("hidden", false)
              .classed(linkType, true);
             path.source.data.isSource = true;
