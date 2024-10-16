@@ -262,6 +262,6 @@ const links: ILink[] = (function make_links() : ILink[] {
 })();
 
 populateNodesWithLinks();
-removeEmptyNodes();
+//removeEmptyNodes();
 
 export { sales, nodes, links };

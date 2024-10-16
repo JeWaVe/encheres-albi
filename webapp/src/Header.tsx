@@ -10,6 +10,7 @@ class Header extends React.Component {
           <Link to="/">Accueil</Link> |{" "}
           <Link to="/peoples">Protagonistes</Link> |{" "}
           <Link to="/fullgraph">Graphique complet</Link> |{" "}
+          <Link to="/stats">Statistiques</Link> |{" "}
         </nav>
       </div>
     );

@@ -6,6 +6,7 @@ import App from './App';
 import AllPeople from "./components/AllPeople";
 import People from "./components/People";
 import FullGraph from "./components/FullGraph";
+import Stats from "./components/Stats";
 import Header from "./Header";
 
 const root = ReactDOM.createRoot(
@@ -21,6 +22,7 @@ root.render(
         <Route path="peoples" element={<AllPeople />} />
         <Route path="people/:id" element={<People />} />
         <Route path="fullgraph" element={<FullGraph />} />
+        <Route path="stats" element={<Stats />} />
       </Routes>
     </BrowserRouter>
   //</React.StrictMode>
