@@ -52,9 +52,6 @@ namespace albi
                 }
                 
                 int id = int.Parse(splitted[0]);
-                if(id == 66) {
-                    Console.WriteLine("toto");
-                }
 
                 result.Add(new Node
                 {
