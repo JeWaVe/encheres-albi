@@ -21,3 +21,6 @@ webapp/yarn-error.log*
 
 /process_data/bin/
 process_data/obj
+
+# Local Netlify folder
+.netlify

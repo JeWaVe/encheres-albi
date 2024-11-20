@@ -14,6 +14,13 @@
             "cwd": "${workspaceFolder}/process_data",
             "stopAtEntry": false,
             "console": "internalConsole"
-        }
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch chrome against localhost",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}"
+          }
     ]
 }

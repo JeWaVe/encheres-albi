@@ -1,5 +1,4 @@
 import React from "react";
-import Multiselect from 'multiselect-react-dropdown';
 import { nodes, links, IPeopleDesc, ILink, LinkType, GetLinkTypeKey } from "../graph";
 import * as d3 from "d3";
 import assert from 'assert';
@@ -206,11 +205,10 @@ class FullGraph extends React.Component<{}, FullGraphState> {
             .attr("class", "Node")
             .attr("dy", "0.31em")
             .attr("transform", function (d) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 38) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
-            .attr("text-anchor", function (d) { return d.x < 180 ? "start" : "end"; })
-            .text(function (d) { return d.data.name.substring(0, Math.min(d.data.name.length, 30)); })
-            .on("click", (_, d) => {
-                window.location.href='/people/' + d.data.guy?.id;
-            });
+            .attr("text-anchor", function (d) { return d.x < 180 ? "start" : "end"; });
+        nodeElements
+            .append("a").attr("xlink:href", function(d) { return "/people/" + d.data.guy?.id; })
+            .text(function (d) { return d.data.name.substring(0, Math.min(d.data.name.length, 30)); });
 
         // link must be assigned to something to be displayed properly (why the hell???)
         // eslint-disable-next-line

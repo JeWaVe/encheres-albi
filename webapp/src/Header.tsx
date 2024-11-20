@@ -7,10 +7,10 @@ class Header extends React.Component {
       <div>
         <h1>Enchères Albi</h1>
         <nav>
-          <Link to="/">Accueil</Link> |{" "}
-          <Link to="/peoples">Protagonistes</Link> |{" "}
-          <Link to="/fullgraph">Graphique complet</Link> |{" "}
-          <Link to="/stats">Statistiques</Link> |{" "}
+          <Link to="./">Accueil</Link> |{" "}
+          <Link to="./peoples">Protagonistes</Link> |{" "}
+          <Link to="./fullgraph">Graphique complet</Link> |{" "}
+          <Link to="./stats">Statistiques</Link> |{" "}
         </nav>
       </div>
     );
