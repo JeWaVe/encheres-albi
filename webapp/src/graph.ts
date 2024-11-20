@@ -21,7 +21,7 @@ export interface IPeopleDesc {
     id: number;
     name: string;
     job: (never | IJob)[];
-    office: null | IOffice;
+    offices: (never | IOffice)[];
     outlinks?: number;
     inlinks?: number;
     wins?: number[];

@@ -1,11 +1,12 @@
 import { useLocation, Link } from "react-router-dom";
-import { nodes, links, sales, LinkType, IJob, ILink } from "../graph";
+import { nodes, links, sales, LinkType, IJob, ILink, IOffice } from "../graph";
 
 function People() {
     const path = useLocation().pathname.split('/');
     const id = parseInt(path[path.length - 1], 10);
     const node = nodes[id];
     const allJobs = node.job.map((j: IJob, i: number) => <li key={i}>{j.Name} : {j.Category}</li>);
+    const allOffices = node.offices.map((j: IOffice, i: number) => <li key={i}>{j.Name} : {j.Category}</li>);
 
     const allActions = links.filter((l: ILink) => l.source === id)
         .map((l: ILink, i: number) => {
@@ -43,10 +44,16 @@ function People() {
         });
 
     return <div>
-        <p>{node.name} - {node.office?.Name} ({node.office?.Category})</p>
+        <p>{node.name}</p>
+        Offices : 
+        <ul>
+            {allOffices}
+        </ul>
+        Travail : 
         <ul>
             {allJobs}
         </ul>
+        Actions : 
         <ul>
             {allActions}
         </ul>

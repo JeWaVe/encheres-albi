@@ -36,6 +36,18 @@ namespace albi
                 Color = "#585858"
             },
             new Job {
+                Code = "FAB",
+                Name = "Forgeron",
+                Category = "Métiers du bâtiment",
+                Color = "#585858"
+            },
+            new Job {
+                Code = "TU",
+                Name = "Tuiler",
+                Category = "Métiers du bâtiment",
+                Color = "#585858"
+            },
+            new Job {
                 Code = "SAV",
                 Name = "Cordonnier",
                 Category = "Métiers du textile et de l’habillement, petit équipement",
@@ -55,7 +67,7 @@ namespace albi
             },
             new Job {
                 Code = "MAG",
-                Name = "à determiner",
+                Name = "Mager de drap",
                 Category = "Métiers du textile et de l’habillement, petit équipement",
                 Color = "#585858"
             },
@@ -79,7 +91,7 @@ namespace albi
             },
             new Job {
                 Code = "FUS",
-                Name = "Charpentier",
+                Name = "Fustier",
                 Category = "Métiers du bâtiment",
                 Color = "#00e130",
             },
@@ -138,7 +150,7 @@ namespace albi
                 Color = "#fc1405",
             },
             new Job {
-                Code = "CUR",
+                Code = "REC",
                 Name = "Curé",
                 Category = "Clercs réguliers et séculiers",
                 Color = "#ff008b",

@@ -33,35 +33,35 @@ namespace albi
                 Rank = 1, 
                 Code = "LTJ",
                 Name = "Lieutenant du juge", 
-                Color = "#00d8ff",
+                Color = "#000cff",
                 Category = "Administration royale"
             },
             new Office {
                 Rank = 2, 
                 Code = "COS",
                 Name = "Consul", 
-                Color = "#ff0c00",
+                Color = "#000cff",
                 Category = "Administration municipale"
             },
             new Office {
                 Rank = 3,
                 Code = "TRES",
                 Name = "Trésorier",
-                Color = "#ff9700",
+                Color = "#000cff",
                 Category = "Administration municipale"
             },
             new Office {
                 Rank = 4,
                 Code = "NOTC",
                 Name = "Notaire des consuls",
-                Color = "#ff008b",
+                Color = "#ffffff",
                 Category = "Administration municipale"
             },
             new Office {
                 Rank = 5,
                 Code = "CS",
                 Name = "Conseiller",
-                Color = "",
+                Color = "#ffffff",
                 Category = "Administration municipale"
             },
             new Office {
@@ -75,15 +75,29 @@ namespace albi
                 Rank = 7,
                 Code = "SERVD",
                 Name = "Serviteur",
-                Color = "#7f8c8d ",
+                Color = "#ffffff ",
                 Category = "Administration municipale"
             },
             new Office {
                 Rank = 8,
                 Code = "SERV",
-                Name = "",
-                Category = "Indéterminé",
+                Name = "Sergent",
+                Category = "Administration municipale",
                 Color = "#b900ff",
+            },
+            new Office {
+                Rank = 9,
+                Code = "RECV",
+                Name = "Receveur",
+                Category = "Administration municipale",
+                Color = "#000cff"
+            },
+            new Office {
+                Rank = 10,
+                Code = "CAP",
+                Name = "Capitaine",
+                Category = "Administration municipale",
+                Color = "#ffffff"
             }
         };
 

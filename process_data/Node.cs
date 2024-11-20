@@ -9,7 +9,7 @@ namespace albi
 
         public List<Job> job { get; set; }
 
-        public Office office { get; set; }
+        public List<Office> offices { get; set; }
 
         public override bool Equals(object obj)
         {

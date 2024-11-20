@@ -164,7 +164,7 @@ class FullGraph extends React.Component<{}, FullGraphState> {
     }
 
     private buildOfficeAndJobName(n: IPeopleDesc) {
-        const office = (n.office?.Name || "no office");
+        const office = (n.offices.map(o => o.Name).join(', ') || "no office");
         const job = office + " " + (n.job.map(j => j.Name).join(', ') || "no job");
         return { office, job };
     }
@@ -418,8 +418,8 @@ class FullGraph extends React.Component<{}, FullGraphState> {
         const catNode = this.findCatNode(this.hierarchyRoot, this.hoveredCategory);
         if (catNode !== undefined) {
             if (this.checkBoxAllowDisplayLink(path)
-                && (this.hoveredCategory === path.source.data.guy?.office?.Name
-                || this.hoveredCategory === path.target.data.guy?.office?.Name
+                && (this.hoveredCategory === this.buildOfficeAndJobName(path.target.data.guy).office
+                || this.hoveredCategory === this.buildOfficeAndJobName(path.target.data.guy).office
                 || this.buildOfficeAndJobName(path.source.data.guy).job === this.hoveredCategory
                 || this.buildOfficeAndJobName(path.source.data.guy).office === this.hoveredCategory)) {   
                 path.target.data.isTarget = true;

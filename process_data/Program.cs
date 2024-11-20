@@ -14,12 +14,12 @@ namespace albi
             List<Node> result = [new Node {
                 id = 0,
                 job = [Job.ALL.First(j => j.Code == "EMPTY")],
-                office = Office.ALL.First(o => o.Code == "EMPTY"),
+                offices = [Office.ALL.First(o => o.Code == "EMPTY")],
                 name = "PERSONNE"
             }];
             var allOffices = Office.ALL.ToDictionary(o => o.Code, o => o);
             var allJobs = Job.ALL.ToDictionary(o => o.Code, o => o);
-            foreach (var line in File.ReadAllLines("../raw_data/nodes.csv").Skip(1))
+            foreach (var line in File.ReadAllLines("../raw_data/noeuds.csv").Skip(1))
             {
                 var splitted = line.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                 if(splitted.Length <= 1) {
@@ -50,13 +50,15 @@ namespace albi
                         }
                     }
                 }
+                
+                int id = int.Parse(splitted[0]);
 
                 result.Add(new Node
                 {
                     id = int.Parse(splitted[0]),
                     name = Regex.Replace(splitted[1], @"\s+", " "),
                     job = job,
-                    office = offices.OrderBy(o => o.Rank).ToList().FirstOrDefault(),
+                    offices = offices.OrderBy(o => o.Rank).ToList(),
                 });
             }
 

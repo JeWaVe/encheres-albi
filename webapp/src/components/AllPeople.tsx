@@ -22,16 +22,18 @@ class Nodes extends React.Component {
     let tmp2: { [key: string]: number } = { "pas d'office connu": 0 };
     for(const id in nodes) {
       const n = nodes[id];
-      const oName = n.office?.Name;
-      if (!oName) {
-        tmp2["pas d'office connu"] += 1;
-      }
-      else {
-        if (!tmp2.hasOwnProperty(oName)) {
-          tmp2[oName] = 0;
+      n.offices.forEach(o => {
+        const oName = o?.Name;
+        if (!oName) {
+          tmp2["pas d'office connu"] += 1;
         }
-        tmp2[oName] += 1;
-      };
+        else {
+          if (!tmp2.hasOwnProperty(oName)) {
+            tmp2[oName] = 0;
+          }
+          tmp2[oName] += 1;
+        };
+      });
       n.job.forEach(j => {
         if (!tmp1.hasOwnProperty(j.Category)) {
           tmp1[j.Category] = 0;

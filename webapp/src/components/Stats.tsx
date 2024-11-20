@@ -1,4 +1,4 @@
-import { nodes, sales, IJob, IPeopleDesc } from "../graph";
+import { nodes, sales, IJob, IPeopleDesc, IOffice } from "../graph";
 import React from 'react';
 
 class Stats extends React.Component {
@@ -20,8 +20,9 @@ class Stats extends React.Component {
 
     public Guy(p: IPeopleDesc) {
         const allJobs = p.job.map((j: IJob, i: number) => <span>{j.Name} : {j.Category}</span>);
+        const allOffices = p.offices.map((j: IOffice, i: number) => <span>{j.Name} : {j.Category}</span>);
         return <li>
-            {p.name} - {p.office?.Name} ({p.office?.Category}) - {allJobs}
+            {p.name} - {allOffices} - {allJobs}
         </li>;
     }
 
