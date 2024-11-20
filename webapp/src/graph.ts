@@ -108,14 +108,12 @@ function make_co_links(
         for(let j = 0; j < dests.length; ++j) {
             const s = sources[i];
             const d = dests[j];
-            if(s !== d) {
-                result.push({
-                    dest: d,
-                    source: s,
-                    saleId: saleId,
-                    type: linkType,
-                });
-            }
+            result.push({
+                dest: d,
+                source: s,
+                saleId: saleId,
+                type: linkType,
+            });
         }
     }
     

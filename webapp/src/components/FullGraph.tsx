@@ -41,7 +41,12 @@ class FullGraph extends React.Component<{}, FullGraphState> {
     private offset = 100;
 
     public componentDidMount(): void {
-        this.hierarchyRoot = this.buildGraph(nodes);
+        let filteredNodes: { [id: number]: IPeopleDesc } = {};
+        links.forEach(l => {
+            filteredNodes[l.dest] = nodes[l.dest];
+            filteredNodes[l.source] = nodes[l.source];
+        });
+        this.hierarchyRoot = this.buildGraph(filteredNodes);
         this.displayGraph();
     }
 
@@ -111,7 +116,7 @@ class FullGraph extends React.Component<{}, FullGraphState> {
         return cluster(root);
     }
 
-    private buildTree(n: { [id: number]: IPeopleDesc }): INode {
+    private buildTree(filteredNodes: { [id: number]: IPeopleDesc }): INode {
         let root: INode = { name: "root", children: [] };
         var map: { [key: string]: INode } = { "root": root };
         function contains(children: INode[], node: INode) {
@@ -124,8 +129,8 @@ class FullGraph extends React.Component<{}, FullGraphState> {
             return false;
         }
 
-        for (let id in nodes) {
-            const n = nodes[id];
+        for (let id in filteredNodes) {
+            const n = filteredNodes[id];
             const { office, job } = this.buildOfficeAndJobName(n);
             const name = id + " : " + n.name;
             if (!map.hasOwnProperty(office)) {
