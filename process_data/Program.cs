@@ -21,7 +21,7 @@ namespace albi
             var allJobs = Job.ALL.ToDictionary(o => o.Code, o => o);
             foreach (var line in File.ReadAllLines("../raw_data/noeuds.csv").Skip(1))
             {
-                var splitted = line.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                var splitted = line.Split(',', StringSplitOptions.TrimEntries);
                 if(splitted.Length <= 1) {
                     continue;
                 }
@@ -52,6 +52,9 @@ namespace albi
                 }
                 
                 int id = int.Parse(splitted[0]);
+                if(id == 66) {
+                    Console.WriteLine("toto");
+                }
 
                 result.Add(new Node
                 {
