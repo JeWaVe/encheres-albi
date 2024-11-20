@@ -13,7 +13,7 @@ namespace albi
             },
             new Job {
                 Code = "AF", 
-                Name = "Travailleur",
+                Name = "Ouvriers",
                 Category = "Ouvriers",
                 Color = "#ced0d0",
             },
