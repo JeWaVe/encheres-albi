@@ -22,7 +22,7 @@ interface PartialLabelledPath extends Array<d3.HierarchyPointNode<INode>> {
 
 type LabelledPath = PartialLabelledPath & d3.BaseType;
 
-class FullGraph extends React.Component<{}, FullGraphState> {
+class WorkGraph extends React.Component<{}, FullGraphState> {
     private ref!: SVGSVGElement;
 
     constructor(props: any) {
@@ -126,22 +126,16 @@ class FullGraph extends React.Component<{}, FullGraphState> {
 
         for (let id in filteredNodes) {
             const n = filteredNodes[id];
-            const { office, job } = this.buildOfficeAndJobName(n);
+            const job = this.buildJobName(n);
             const name = id + " : " + n.name;
-            if (!map.hasOwnProperty(office)) {
-                map[office] = { name: office, children: [], parent: map["root"] };
-            }
             if (!map.hasOwnProperty(job)) {
-                map[job] = { name: job, children: [], parent: map[office] };
+                map[job] = { name: job, children: [], parent: map["root"] };
             }
             if (!map.hasOwnProperty(name)) {
                 map[name] = { name: name, guy: n, children: [], parent: map[job] };
             }
-            if (!contains(root.children, map[office])) {
-                map["root"].children.push(map[office]);
-            }
-            if (!contains(map[office].children, map[job])) {
-                map[office].children.push(map[job]);
+            if (!contains(map["root"].children, map[job])) {
+                map["root"].children.push(map[job]);
             }
 
             if (!contains(map[job].children, map[name])) {
@@ -149,24 +143,20 @@ class FullGraph extends React.Component<{}, FullGraphState> {
             }
         }
 
-        for(const office of root.children) {
-            for(const job of office.children) {
-                let guys = job.children;
-                guys.sort((a, b) => {
-                    let aweight = (a.guy?.inlinks || 0) + (b.guy?.outlinks || 0);
-                    let bweight = (b.guy?.inlinks || 0) + (b.guy?.outlinks || 0);
-                    return aweight - bweight;
-                });
-            }
+        for(const job of root.children) {
+            let guys = job.children;
+            guys.sort((a, b) => {
+                let aweight = (a.guy?.inlinks || 0) + (b.guy?.outlinks || 0);
+                let bweight = (b.guy?.inlinks || 0) + (b.guy?.outlinks || 0);
+                return aweight - bweight;
+            });
         }
 
         return root;
     }
 
-    private buildOfficeAndJobName(n: IPeopleDesc) {
-        const office = (n.offices.map(o => o.Name).join(', ') || "no office");
-        const job = office + " " + (n.job.map(j => j.Name).join(', ') || "no job");
-        return { office, job };
+    private buildJobName(n: IPeopleDesc) {
+        return (n.job.map(j => j.Name).join(', ') || "no job");
     }
 
     private displayGraph() {
@@ -204,7 +194,7 @@ class FullGraph extends React.Component<{}, FullGraphState> {
             .enter().append("text")
             .attr("class", "Node")
             .attr("dy", "0.31em")
-            .attr("transform", function (d) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 70) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
+            .attr("transform", function (d) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 60) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
             .attr("text-anchor", function (d) { return d.x < 180 ? "start" : "end"; });
         nodeElements
             .append("a").attr("xlink:href", function(d) { return "/people/" + d.data.guy?.id; })
@@ -242,64 +232,33 @@ class FullGraph extends React.Component<{}, FullGraphState> {
         let svg = d3.select(this.ref);
         assert(this.hierarchyRoot.children);
         for (let i = 0; i < this.hierarchyRoot.children.length; ++i) {
-            const office = this.hierarchyRoot.children[i];
-            const arc = this.getArc(this.innerRadius, this.innerRadius + 30)(office);
-            const officeElements = svg.append("path")
+            const job = this.hierarchyRoot.children[i];
+            const jobName = job.data.name;
+            const arc = this.getArc(this.innerRadius, this.innerRadius + 50)(job);
+            const jobElement = svg.append("path")
                 .attr("id", "path" + id)
                 .attr("d", arc)
-                .attr("data-category", office.data.name)
-                .attr("stroke", this.color(office.data.name))
-                .attr("fill", this.color(office.data.name))
-                .attr("transform", "translate(" + (this.radius + this.offset) + "," + (this.radius + + this.offset) + ")");
-            officeElements.append("title").text(office.data.name);
-            officeElements.on("mouseover", () => {
-                this.hoveredCategory = officeElements.attr("data-category");
+                .attr("data-category", job.data.name)
+                .attr("stroke", this.color(job.data.name))
+                .attr("fill", this.color(job.data.name))
+                .attr("transform", "translate(" + (this.radius + this.offset) + "," + (this.radius + this.offset) + ")");
+            jobElement.append("title").text(jobName);
+            jobElement.on("mouseover", () => {
+                this.hoveredCategory = jobElement.attr("data-category");
                 this.refreshDetails(nodes, links);
             });
-            officeElements.on("mouseout",() => {
+            jobElement.on("mouseout", () => {
                 this.hoveredCategory = undefined;
                 this.restoreDefault(nodes, links);
             });
 
             svg.append("text")
-                .attr("dy", 20)
+                .attr("dy", 14)
                 .append("textPath")
                 .attr("class", "category")
                 .attr("xlink:href", "#path" + id++)
-                .text(office.data.name)
+                .text(jobName)
                 .classed("IgnorePointer", true);
-
-            assert(office.children);
-
-            for (let j = 0; j < office.children.length; ++j) {
-                const job = office.children[j];
-                const jobName = job.data.name.substring(office.data.name.length + 1);
-                const arc = this.getArc(this.innerRadius + 30, this.innerRadius + 60)(job);
-                const jobElement = svg.append("path")
-                    .attr("id", "path" + id)
-                    .attr("d", arc)
-                    .attr("data-category", job.data.name)
-                    .attr("stroke", this.color(job.data.name))
-                    .attr("fill", this.color(job.data.name))
-                    .attr("transform", "translate(" + (this.radius + this.offset) + "," + (this.radius + this.offset) + ")");
-                jobElement.append("title").text(jobName);
-                jobElement.on("mouseover", () => {
-                    this.hoveredCategory = jobElement.attr("data-category");
-                    this.refreshDetails(nodes, links);
-                });
-                jobElement.on("mouseout",() => {
-                    this.hoveredCategory = undefined;
-                    this.restoreDefault(nodes, links);
-                });
-
-                svg.append("text")
-                    .attr("dy", 20)
-                    .append("textPath")
-                    .attr("class", "category")
-                    .attr("xlink:href", "#path" + id++)
-                    .text(jobName)
-                    .classed("IgnorePointer", true);
-            }
         }
     }
 
@@ -418,10 +377,8 @@ class FullGraph extends React.Component<{}, FullGraphState> {
         const catNode = this.findCatNode(this.hierarchyRoot, this.hoveredCategory);
         if (catNode !== undefined) {
             if (this.checkBoxAllowDisplayLink(path)
-                && (this.hoveredCategory === this.buildOfficeAndJobName(path.target.data.guy).office
-                || this.hoveredCategory === this.buildOfficeAndJobName(path.target.data.guy).job
-                || this.buildOfficeAndJobName(path.source.data.guy).job === this.hoveredCategory
-                || this.buildOfficeAndJobName(path.source.data.guy).office === this.hoveredCategory)) {   
+                && (this.hoveredCategory === this.buildJobName(path.target.data.guy)
+                || this.buildJobName(path.source.data.guy) === this.hoveredCategory)) {   
                 path.target.data.isTarget = true;
                 path.source.data.isSource = true;
                 l.classed(linkType, true);
@@ -484,4 +441,4 @@ class FullGraph extends React.Component<{}, FullGraphState> {
     }
 }
 
-export default FullGraph;
+export default WorkGraph;

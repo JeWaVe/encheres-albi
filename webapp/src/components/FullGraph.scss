@@ -49,34 +49,15 @@ $coTakeColor: rgb(255, 0, 208);
                 }
             }
         }
-
-        .NodeType {
-            .Source {
-                background-color: $sourceColor;
-            }
-            .Target {
-                background-color: $targetcolor;
-            }
-        }
     }
 
     .Node {
         font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
         fill: #bbb;
         cursor: pointer;
-
-        &.source {
-            fill: $sourceColor;
-            font-weight: 700;
-        }
     
         &:hover {
             fill: black;
-            font-weight: 700;
-        }
-        
-        &.target {
-            fill: $targetcolor;
             font-weight: 700;
         }
 
