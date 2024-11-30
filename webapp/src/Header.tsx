@@ -11,7 +11,6 @@ class Header extends React.Component {
           <Link to="./peoples">Protagonistes</Link> |{" "}
           <Link to="./fullgraph">Graphique complet</Link> |{" "}
           <Link to="./workgraph">Graphique par travail</Link>{" "}
-          {/* <Link to="./stats">Statistiques</Link> |{" "} */}
         </nav>
       </div>
     );
