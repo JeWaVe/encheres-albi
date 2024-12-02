@@ -221,7 +221,6 @@ class WorkGraph extends React.Component<{}, FullGraphState> {
         });
         
         this.displayCategories(linkElements, nodeElements);
-
     }
 
     private displayCategories(
@@ -377,8 +376,7 @@ class WorkGraph extends React.Component<{}, FullGraphState> {
         const catNode = this.findCatNode(this.hierarchyRoot, this.hoveredCategory);
         if (catNode !== undefined) {
             if (this.checkBoxAllowDisplayLink(path)
-                && (this.hoveredCategory === this.buildJobName(path.target.data.guy)
-                || this.buildJobName(path.source.data.guy) === this.hoveredCategory)) {   
+                && this.buildJobName(path.source.data.guy) === this.hoveredCategory) {   
                 path.target.data.isTarget = true;
                 path.source.data.isSource = true;
                 l.classed(linkType, true);

@@ -418,9 +418,7 @@ class FullGraph extends React.Component<{}, FullGraphState> {
         const catNode = this.findCatNode(this.hierarchyRoot, this.hoveredCategory);
         if (catNode !== undefined) {
             if (this.checkBoxAllowDisplayLink(path)
-                && (this.hoveredCategory === this.buildOfficeAndJobName(path.target.data.guy).office
-                || this.hoveredCategory === this.buildOfficeAndJobName(path.target.data.guy).job
-                || this.buildOfficeAndJobName(path.source.data.guy).job === this.hoveredCategory
+                && (this.buildOfficeAndJobName(path.source.data.guy).job === this.hoveredCategory
                 || this.buildOfficeAndJobName(path.source.data.guy).office === this.hoveredCategory)) {   
                 path.target.data.isTarget = true;
                 path.source.data.isSource = true;
